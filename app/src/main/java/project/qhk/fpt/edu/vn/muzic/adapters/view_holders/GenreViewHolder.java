@@ -35,15 +35,15 @@ public class GenreViewHolder extends RecyclerView.ViewHolder {
         ButterKnife.bind(this, itemView);
     }
 
-    public void bind(Genre item) {
+    public void bind(Genre genre) {
         try {
-            InputStream stream = context.getAssets().open("images/genre_" + item.getNumber() + ".png");
+            InputStream stream = context.getAssets().open("images/genre_" + genre.getNumber() + ".png");
             Drawable drawable = Drawable.createFromStream(stream, null);
             imageView.setImageDrawable(drawable);
             stream.close();
         } catch (IOException ex) {
 
         }
-        textView.setText(item.getName().toUpperCase());
+        textView.setText(genre.getName().toUpperCase());
     }
 }
