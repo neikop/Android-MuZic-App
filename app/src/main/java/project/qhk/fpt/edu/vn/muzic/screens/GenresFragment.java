@@ -67,10 +67,10 @@ public class GenresFragment extends Fragment {
                 getActivity(), recyclerViewGenres, new RecyclerViewListener.OnItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {
-                SongsFragment songsFragment = new SongsFragment();
-                songsFragment.setPosition(position);
-                EventBus.getDefault().post(new FragmentChanger(
-                        GenresFragment.this.getClass().getSimpleName(), songsFragment, true));
+//                SongsFragment songsFragment = new SongsFragment();
+//                songsFragment.setPosition(position);
+//                EventBus.getDefault().post(new FragmentChanger(
+//                        GenresFragment.this.getClass().getSimpleName(), songsFragment, true));
             }
 
             @Override
