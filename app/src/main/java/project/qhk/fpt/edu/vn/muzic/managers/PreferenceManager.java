@@ -9,7 +9,7 @@ import android.content.SharedPreferences;
 
 public class PreferenceManager {
 
-    private static final String KEY = "MuZicApplication";
+    private static final String KEY = "PreferenceManager";
 
     private SharedPreferences sharedPreferences;
 

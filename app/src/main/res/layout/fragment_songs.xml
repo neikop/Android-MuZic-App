@@ -11,7 +11,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@color/colorPrimaryDark"
+            android:background="@color/colorPrimary"
             android:orientation="vertical">
 
             <RelativeLayout
@@ -23,7 +23,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="180dp"
                     android:scaleType="centerCrop"
-                    android:src="@drawable/genre_demo" />
+                    android:src="@drawable/image_genre_demo" />
 
                 <View
                     android:layout_width="match_parent"
@@ -88,6 +88,7 @@
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:background="@color/colorPrimaryDark"
                 android:paddingBottom="15dp">
 
                 <TextView
@@ -120,6 +121,12 @@
                     android:id="@+id/recycler_view_songs"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent" />
+
+                <ProgressBar
+                    android:id="@+id/progress_bar_waiting"
+                    android:layout_width="80dp"
+                    android:layout_height="80dp"
+                    android:layout_centerInParent="true" />
 
             </RelativeLayout>
 

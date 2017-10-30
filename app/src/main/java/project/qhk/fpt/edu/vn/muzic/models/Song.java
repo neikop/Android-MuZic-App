@@ -1,6 +1,7 @@
 package project.qhk.fpt.edu.vn.muzic.models;
 
 import io.realm.RealmObject;
+import project.qhk.fpt.edu.vn.muzic.models.api_models.MediaFeed;
 
 /**
  * Created by WindzLord on 12/1/2016.
@@ -8,24 +9,24 @@ import io.realm.RealmObject;
 
 public class Song extends RealmObject {
 
-    private String mediaID;
+    public static String GENRE_ID = "genreID";
+
+    private String genreID;
     private String name;
     private String artist;
-    private String imageSmall;
-    private String imageBigger;
+    private String imageLink;
 
-    public static Song create(String mediaID, MediaDaddy.FeedX.SongX xSong) {
+    public static Song create(String mediaID, MediaFeed.Feed.Entry entry) {
         Song song = new Song();
-        song.mediaID = mediaID;
-        song.name = xSong.getName();
-        song.artist = xSong.getArtist();
-        song.imageSmall = xSong.getImageList().get(1).getLinkImage();
-        song.imageBigger = xSong.getImageList().get(2).getLinkImage();
+        song.genreID = mediaID;
+        song.name = entry.getName();
+        song.artist = entry.getArtist();
+        song.imageLink = entry.getImageLink();
         return song;
     }
 
-    public String getMediaID() {
-        return mediaID;
+    public String getGenreID() {
+        return genreID;
     }
 
     public String getName() {
@@ -36,11 +37,7 @@ public class Song extends RealmObject {
         return artist;
     }
 
-    public String getImageSmall() {
-        return imageSmall;
-    }
-
-    public String getImageBigger() {
-        return imageBigger;
+    public String getImageLink() {
+        return imageLink;
     }
 }

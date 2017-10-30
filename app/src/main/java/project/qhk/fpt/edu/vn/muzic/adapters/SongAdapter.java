@@ -7,7 +7,9 @@ import android.view.ViewGroup;
 
 import java.util.List;
 
+import project.qhk.fpt.edu.vn.muzic.R;
 import project.qhk.fpt.edu.vn.muzic.adapters.view_holders.SongViewHolder;
+import project.qhk.fpt.edu.vn.muzic.models.Song;
 
 /**
  * Created by WindzLord on 11/29/2016.
@@ -24,7 +26,7 @@ public class SongAdapter extends RecyclerView.Adapter<SongViewHolder> {
     @Override
     public SongViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LayoutInflater layoutInflater = LayoutInflater.from(parent.getContext());
-        View itemView = layoutInflater.inflate(R.layout.item_song, parent, false);
+        View itemView = layoutInflater.inflate(R.layout.view_holder_song, parent, false);
         return new SongViewHolder(itemView);
     }
 

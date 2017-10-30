@@ -9,20 +9,27 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 
 import java.io.IOException;
 import java.io.InputStream;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
+import project.qhk.fpt.edu.vn.muzic.MainActivity;
 import project.qhk.fpt.edu.vn.muzic.R;
+import project.qhk.fpt.edu.vn.muzic.adapters.SongAdapter;
+import project.qhk.fpt.edu.vn.muzic.adapters.listeners.RecyclerViewListener;
 import project.qhk.fpt.edu.vn.muzic.managers.RealmManager;
 import project.qhk.fpt.edu.vn.muzic.models.Genre;
+import project.qhk.fpt.edu.vn.muzic.objects.SongChanger;
+import project.qhk.fpt.edu.vn.muzic.objects.WaitingChanger;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -38,10 +45,14 @@ public class SongsFragment extends Fragment {
     @BindView(R.id.recycler_view_songs)
     RecyclerView recyclerViewSongs;
 
-    private Genre genre;
+    @BindView(R.id.progress_bar_waiting)
+    ProgressBar waitingBar;
 
-    public void setPosition(int position) {
-        genre = RealmManager.getInstance().getGenres().get(position);
+    private Genre genre;
+    private boolean waiting;
+
+    public void getGenreIndex(int index) {
+        genre = RealmManager.getInstance().getGenres().get(index);
     }
 
     public SongsFragment() {
@@ -77,13 +88,16 @@ public class SongsFragment extends Fragment {
 
         }
         textGenreSongs.setText(genre.getName().toUpperCase());
+
+        waiting = false;
+        waitingBar.setVisibility(View.INVISIBLE);
     }
 
     private void goTopSong() {
         recyclerViewSongs.setLayoutManager(new LinearLayoutManager(
                 getActivity(), LinearLayoutManager.VERTICAL, false));
         recyclerViewSongs.setAdapter(new SongAdapter(
-                RealmManager.getInstance().getTopSong(media.getId())));
+                RealmManager.getInstance().getSongs(genre.getNumber())));
         recyclerViewSongs.getAdapter().notifyDataSetChanged();
 
         recyclerViewSongs.addOnItemTouchListener(new RecyclerViewListener(
@@ -91,8 +105,9 @@ public class SongsFragment extends Fragment {
 
             @Override
             public void onItemClick(View view, int position) {
-                EventBus.getDefault().post(new MediaChanger(
-                        MainActivity.class.getSimpleName(), media.getIndex(), position));
+                if (waiting) return;
+                EventBus.getDefault().post(new SongChanger(
+                        MainActivity.class.getSimpleName(), genre.getIndex(), position));
             }
 
             @Override
@@ -100,6 +115,24 @@ public class SongsFragment extends Fragment {
 
             }
         }));
+    }
+
+    @OnClick(R.id.image_button_back)
+    public void onBackPressed() {
+        getActivity().onBackPressed();
+    }
+
+    @Subscribe
+    public void changeWaiting(WaitingChanger event) {
+        if (!this.getClass().getSimpleName().equals(event.getTarget())) return;
+        waiting = event.isWaiting();
+        waitingBar.setVisibility(waiting ? View.VISIBLE : View.INVISIBLE);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        EventBus.getDefault().unregister(this);
     }
 
 }

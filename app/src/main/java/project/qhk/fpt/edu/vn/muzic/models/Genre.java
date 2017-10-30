@@ -8,6 +8,7 @@ import io.realm.RealmObject;
 
 public class Genre extends RealmObject {
 
+    private int index;
     private String number;
     private String name;
 
@@ -23,6 +24,14 @@ public class Genre extends RealmObject {
         genre.setNumber(number);
         genre.setName(name);
         return genre;
+    }
+
+    public int getIndex() {
+        return index;
+    }
+
+    public void setIndex(int index) {
+        this.index = index;
     }
 
     public String getNumber() {

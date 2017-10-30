@@ -4,8 +4,10 @@ import android.content.Context;
 
 import java.util.List;
 
+import io.realm.Case;
 import io.realm.Realm;
 import project.qhk.fpt.edu.vn.muzic.models.Genre;
+import project.qhk.fpt.edu.vn.muzic.models.Song;
 
 /**
  * Created by WindzLord on 11/29/2016.
@@ -24,8 +26,9 @@ public class RealmManager {
         return instance;
     }
 
-    public void add(Genre genre) {
+    public void addGenre(Genre genre) {
         beginTransaction();
+        genre.setIndex(getGenres().size());
         getRealm().copyToRealm(genre);
         commitTransaction();
     }
@@ -37,6 +40,24 @@ public class RealmManager {
     public void clearGenre() {
         beginTransaction();
         getRealm().delete(Genre.class);
+        commitTransaction();
+    }
+
+    public void addSong(Song song) {
+        beginTransaction();
+        getRealm().copyToRealm(song);
+        commitTransaction();
+    }
+
+    public List<Song> getSongs(String genreID) {
+        return getRealm().where(Song.class)
+                .equalTo(Song.GENRE_ID, genreID, Case.INSENSITIVE)
+                .findAll();
+    }
+
+    public void clearSong() {
+        beginTransaction();
+        getRealm().delete(Song.class);
         commitTransaction();
     }
 

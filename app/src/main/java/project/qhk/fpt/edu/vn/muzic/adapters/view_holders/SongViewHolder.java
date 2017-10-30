@@ -10,6 +10,7 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import project.qhk.fpt.edu.vn.muzic.R;
+import project.qhk.fpt.edu.vn.muzic.models.Song;
 
 /**
  * Created by WindzLord on 11/29/2016.
@@ -34,7 +35,7 @@ public class SongViewHolder extends RecyclerView.ViewHolder {
     public void bind(Song song) {
         textSongName.setText(song.getName());
         textSongArtist.setText(song.getArtist());
-        String linkSmall = song.getImageSmall();
-        ImageLoader.getInstance().displayImage(linkSmall, imageSongSmall);
+        String imageLink = song.getImageLink();
+        ImageLoader.getInstance().displayImage(imageLink, imageSongSmall);
     }
 }

@@ -11,7 +11,6 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -19,7 +18,6 @@ import project.qhk.fpt.edu.vn.muzic.R;
 import project.qhk.fpt.edu.vn.muzic.adapters.GenreAdapter;
 import project.qhk.fpt.edu.vn.muzic.adapters.listeners.RecyclerViewListener;
 import project.qhk.fpt.edu.vn.muzic.objects.FragmentChanger;
-import project.qhk.fpt.edu.vn.muzic.objects.Notifier;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -67,10 +65,10 @@ public class GenresFragment extends Fragment {
                 getActivity(), recyclerViewGenres, new RecyclerViewListener.OnItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {
-//                SongsFragment songsFragment = new SongsFragment();
-//                songsFragment.setPosition(position);
-//                EventBus.getDefault().post(new FragmentChanger(
-//                        GenresFragment.this.getClass().getSimpleName(), songsFragment, true));
+                SongsFragment songsFragment = new SongsFragment();
+                songsFragment.getGenreIndex(position);
+                EventBus.getDefault().post(new FragmentChanger(
+                        GenresFragment.this.getClass().getSimpleName(), songsFragment, true));
             }
 
             @Override

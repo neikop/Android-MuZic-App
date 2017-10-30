@@ -53,7 +53,7 @@
                     android:layout_height="40dp"
                     android:layout_below="@id/cute_seek_bar"
                     android:layout_marginLeft="10dp"
-                    android:src="@drawable/cute_song_image_demo" />
+                    android:src="@drawable/image_song_demo" />
 
                 <RelativeLayout
                     android:id="@+id/cute_layout"

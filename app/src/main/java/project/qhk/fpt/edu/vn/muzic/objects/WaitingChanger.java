@@ -4,16 +4,21 @@ package project.qhk.fpt.edu.vn.muzic.objects;
  * Created by WindzLord on 10/29/2017.
  */
 
-public class Notifier {
+public class WaitingChanger {
 
     private String target;
+    private boolean waiting;
 
-    public Notifier(String target) {
+    public WaitingChanger(String target, boolean waiting) {
         this.target = target;
+        this.waiting = waiting;
     }
 
     public String getTarget() {
         return target;
     }
 
+    public boolean isWaiting() {
+        return waiting;
+    }
 }
