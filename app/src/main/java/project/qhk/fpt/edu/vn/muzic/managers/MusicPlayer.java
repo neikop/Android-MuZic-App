@@ -92,6 +92,10 @@ public class MusicPlayer {
         exoPlayer.seekTo(progress);
     }
 
+    public void resume() {
+        exoPlayer.setPlayWhenReady(true);
+    }
+
     public void changeState() {
         exoPlayer.setPlayWhenReady(!exoPlayer.getPlayWhenReady());
     }

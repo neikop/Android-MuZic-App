@@ -117,6 +117,13 @@ public class SongsFragment extends Fragment {
         }));
     }
 
+    @OnClick(R.id.button_play)
+    public void onPlayPressed() {
+        if (waiting) return;
+        EventBus.getDefault().post(new SongChanger(
+                MainActivity.class.getSimpleName(), genre.getIndex(), 0));
+    }
+
     @OnClick(R.id.image_button_back)
     public void onBackPressed() {
         getActivity().onBackPressed();

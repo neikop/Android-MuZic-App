@@ -124,7 +124,7 @@ public class MainActivity extends AppCompatActivity {
             public void onStopTrackingTouch(SeekBar seekBar) {
                 MusicPlayer.getInstance().seekTo(seekBar.getProgress());
                 remainTime = zTotalTime - seekBar.getProgress();
-                countDownTimerCancel(remainTime);
+                if (isPlaying) countDownTimerCancel(remainTime);
             }
         });
     }
@@ -206,6 +206,7 @@ public class MainActivity extends AppCompatActivity {
     public void goPlay(Notifier event) {
         if (!this.getClass().getSimpleName().equals(event.getTarget())) return;
 
+        MusicPlayer.getInstance().resume();
         isPlaying = true;
         zTotalTime = MusicPlayer.getInstance().getDuration();
         cuteSeekBar.setMax((int) zTotalTime);
