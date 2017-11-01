@@ -11,7 +11,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -22,14 +24,27 @@ import java.io.InputStream;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import project.qhk.fpt.edu.vn.muzic.Constant;
 import project.qhk.fpt.edu.vn.muzic.MainActivity;
+import project.qhk.fpt.edu.vn.muzic.MainApplication;
 import project.qhk.fpt.edu.vn.muzic.R;
 import project.qhk.fpt.edu.vn.muzic.adapters.SongAdapter;
 import project.qhk.fpt.edu.vn.muzic.adapters.listeners.RecyclerViewListener;
+import project.qhk.fpt.edu.vn.muzic.managers.NetworkManager;
 import project.qhk.fpt.edu.vn.muzic.managers.RealmManager;
 import project.qhk.fpt.edu.vn.muzic.models.Genre;
+import project.qhk.fpt.edu.vn.muzic.models.Song;
+import project.qhk.fpt.edu.vn.muzic.models.api_models.MediaFeed;
+import project.qhk.fpt.edu.vn.muzic.objects.SimpleNotifier;
 import project.qhk.fpt.edu.vn.muzic.objects.SongChanger;
+import project.qhk.fpt.edu.vn.muzic.objects.UpdateNotifier;
 import project.qhk.fpt.edu.vn.muzic.objects.WaitingChanger;
+import project.qhk.fpt.edu.vn.muzic.services.MusicService;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.GsonConverterFactory;
+import retrofit2.Response;
+import retrofit2.Retrofit;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -47,6 +62,9 @@ public class SongsFragment extends Fragment {
 
     @BindView(R.id.progress_bar_waiting)
     ProgressBar waitingBar;
+
+    @BindView(R.id.button_refresh)
+    RelativeLayout buttonRefresh;
 
     private Genre genre;
     private boolean isWaiting;
@@ -75,7 +93,9 @@ public class SongsFragment extends Fragment {
         EventBus.getDefault().register(this);
 
         goContent();
-        goTopSong();
+        if (RealmManager.getInstance().getSongs(genre.getNumber()).isEmpty()) {
+            goUpdate();
+        } else goTopSong();
     }
 
     private void goContent() {
@@ -91,6 +111,7 @@ public class SongsFragment extends Fragment {
 
         isWaiting = false;
         waitingBar.setVisibility(View.INVISIBLE);
+        buttonRefresh.setVisibility(View.INVISIBLE);
     }
 
     private void goTopSong() {
@@ -135,6 +156,52 @@ public class SongsFragment extends Fragment {
 
         isWaiting = event.isWaiting();
         waitingBar.setVisibility(isWaiting ? View.VISIBLE : View.INVISIBLE);
+    }
+
+    @Subscribe
+    public void goUpdate(UpdateNotifier event) {
+        if (!this.getClass().getSimpleName().equals(event.getTarget())) return;
+        if (!genre.getNumber().equals(event.getNumber())) return;
+
+        waitingBar.setVisibility(View.INVISIBLE);
+        if (!event.isSuccess()) {
+            Toast.makeText(getContext(), "FAILURE", Toast.LENGTH_SHORT).show();
+            buttonRefresh.setVisibility(View.VISIBLE);
+        } else goTopSong();
+    }
+
+    @OnClick(R.id.button_refresh)
+    public void goUpdate() {
+        System.out.println("goUpdate");
+        buttonRefresh.setVisibility(View.INVISIBLE);
+        waitingBar.setVisibility(View.VISIBLE);
+        RealmManager.getInstance().clearSong();
+
+        Retrofit mediaRetrofit = new Retrofit.Builder()
+                .baseUrl(Constant.TOP_SONG_API)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+        MusicService musicService = mediaRetrofit.create(MusicService.class);
+
+        for (Genre genre : RealmManager.getInstance().getGenres()) {
+
+            musicService.getMediaFeed(genre.getNumber()).enqueue(new Callback<MediaFeed>() {
+                @Override
+                public void onResponse(Call<MediaFeed> call, Response<MediaFeed> response) {
+                    for (MediaFeed.Feed.Entry entry : response.body().getTopSongList()) {
+                        RealmManager.getInstance().addSong(Song.create(genre.getNumber(), entry));
+                    }
+                    EventBus.getDefault().post(new UpdateNotifier(
+                            SongsFragment.class.getSimpleName(), genre.getNumber(), true));
+                }
+
+                @Override
+                public void onFailure(Call<MediaFeed> call, Throwable throwable) {
+                    EventBus.getDefault().post(new UpdateNotifier(
+                            SongsFragment.class.getSimpleName(), genre.getNumber(), false));
+                }
+            });
+        }
     }
 
     @Override

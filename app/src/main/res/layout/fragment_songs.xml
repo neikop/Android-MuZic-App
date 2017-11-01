@@ -83,6 +83,24 @@
                     android:layout_height="80dp"
                     android:layout_centerInParent="true" />
 
+                <RelativeLayout
+                    android:id="@+id/button_refresh"
+                    android:layout_width="80dp"
+                    android:layout_height="80dp"
+                    android:layout_centerInParent="true">
+
+                    <de.hdodenhof.circleimageview.CircleImageView
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:src="@color/colorAccent" />
+
+                    <ImageView
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:layout_centerInParent="true"
+                        android:src="@drawable/ic_sync_white_48px" />
+                </RelativeLayout>
+
             </RelativeLayout>
 
         </LinearLayout>

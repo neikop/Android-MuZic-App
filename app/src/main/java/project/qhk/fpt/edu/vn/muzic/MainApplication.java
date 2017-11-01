@@ -5,6 +5,8 @@ import android.app.Application;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 
+import org.greenrobot.eventbus.EventBus;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -17,6 +19,8 @@ import project.qhk.fpt.edu.vn.muzic.managers.RealmManager;
 import project.qhk.fpt.edu.vn.muzic.models.Genre;
 import project.qhk.fpt.edu.vn.muzic.models.Song;
 import project.qhk.fpt.edu.vn.muzic.models.api_models.MediaFeed;
+import project.qhk.fpt.edu.vn.muzic.objects.UpdateNotifier;
+import project.qhk.fpt.edu.vn.muzic.screens.SongsFragment;
 import project.qhk.fpt.edu.vn.muzic.services.MusicService;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -71,8 +75,6 @@ public class MainApplication extends Application {
 
     private void goTopSong() {
         System.out.println("goTopSong");
-        if (!NetworkManager.getInstance().isConnectedToInternet()) return;
-        if (RealmManager.getInstance().getGenres().isEmpty()) return;
         RealmManager.getInstance().clearSong();
 
         Retrofit mediaRetrofit = new Retrofit.Builder()
@@ -89,11 +91,14 @@ public class MainApplication extends Application {
                     for (MediaFeed.Feed.Entry entry : response.body().getTopSongList()) {
                         RealmManager.getInstance().addSong(Song.create(genre.getNumber(), entry));
                     }
+                    EventBus.getDefault().post(new UpdateNotifier(
+                            SongsFragment.class.getSimpleName(), genre.getNumber(), true));
                 }
 
                 @Override
                 public void onFailure(Call<MediaFeed> call, Throwable throwable) {
-                    System.out.println("goTopSongs failure");
+                    EventBus.getDefault().post(new UpdateNotifier(
+                            SongsFragment.class.getSimpleName(), genre.getNumber(), false));
                 }
             });
         }
