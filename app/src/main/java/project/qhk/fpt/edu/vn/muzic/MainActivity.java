@@ -1,7 +1,6 @@
 package project.qhk.fpt.edu.vn.muzic;
 
 import android.content.pm.ActivityInfo;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.support.v4.app.Fragment;
@@ -17,15 +16,6 @@ import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
-import com.google.android.exoplayer.ExoPlaybackException;
-import com.google.android.exoplayer.ExoPlayer;
-import com.google.android.exoplayer.MediaCodecAudioTrackRenderer;
-import com.google.android.exoplayer.extractor.ExtractorSampleSource;
-import com.google.android.exoplayer.upstream.Allocator;
-import com.google.android.exoplayer.upstream.DataSource;
-import com.google.android.exoplayer.upstream.DefaultAllocator;
-import com.google.android.exoplayer.upstream.DefaultUriDataSource;
-import com.google.android.exoplayer.util.Util;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
 import org.greenrobot.eventbus.EventBus;
@@ -39,8 +29,8 @@ import project.qhk.fpt.edu.vn.muzic.managers.RealmManager;
 import project.qhk.fpt.edu.vn.muzic.models.Genre;
 import project.qhk.fpt.edu.vn.muzic.models.Song;
 import project.qhk.fpt.edu.vn.muzic.models.api_models.SongMp3;
-import project.qhk.fpt.edu.vn.muzic.objects.FragmentChanger;
-import project.qhk.fpt.edu.vn.muzic.objects.Notifier;
+import project.qhk.fpt.edu.vn.muzic.objects.FragmentNotifier;
+import project.qhk.fpt.edu.vn.muzic.objects.PlayNotifier;
 import project.qhk.fpt.edu.vn.muzic.objects.SongChanger;
 import project.qhk.fpt.edu.vn.muzic.objects.WaitingChanger;
 import project.qhk.fpt.edu.vn.muzic.screens.GenresFragment;
@@ -130,7 +120,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Subscribe
-    public void onFragmentEvent(FragmentChanger changer) {
+    public void onFragmentEvent(FragmentNotifier changer) {
         openFragment(changer.getSource(), changer.getFragment(), changer.isAddToBackStack());
     }
 
@@ -164,8 +154,10 @@ public class MainActivity extends AppCompatActivity {
     @Subscribe
     public void onSongEvent(SongChanger event) {
         if (!this.getClass().getSimpleName().equals(event.getTarget())) return;
+
         genre = RealmManager.getInstance().getGenres().get(event.getIndexGenre());
         if (RealmManager.getInstance().getSongs(genre.getNumber()).isEmpty()) return;
+
         prePlay(event.getIndexSong());
     }
 
@@ -203,12 +195,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Subscribe
-    public void goPlay(Notifier event) {
+    public void goPlay(PlayNotifier event) {
         if (!this.getClass().getSimpleName().equals(event.getTarget())) return;
 
-        MusicPlayer.getInstance().resume();
         isPlaying = true;
         zTotalTime = MusicPlayer.getInstance().getDuration();
+        System.out.println("Time: " + zTotalTime);
         cuteSeekBar.setMax((int) zTotalTime);
         cuteSeekBar.setProgress(0);
         cuteSongName.setText(song.getName());

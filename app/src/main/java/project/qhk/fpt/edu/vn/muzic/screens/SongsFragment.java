@@ -132,6 +132,7 @@ public class SongsFragment extends Fragment {
     @Subscribe
     public void changeWaiting(WaitingChanger event) {
         if (!this.getClass().getSimpleName().equals(event.getTarget())) return;
+
         waiting = event.isWaiting();
         waitingBar.setVisibility(waiting ? View.VISIBLE : View.INVISIBLE);
     }

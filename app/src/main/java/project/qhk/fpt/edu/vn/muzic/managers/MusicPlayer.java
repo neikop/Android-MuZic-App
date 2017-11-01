@@ -17,7 +17,7 @@ import com.google.android.exoplayer.util.Util;
 import org.greenrobot.eventbus.EventBus;
 
 import project.qhk.fpt.edu.vn.muzic.MainActivity;
-import project.qhk.fpt.edu.vn.muzic.objects.Notifier;
+import project.qhk.fpt.edu.vn.muzic.objects.PlayNotifier;
 import project.qhk.fpt.edu.vn.muzic.objects.WaitingChanger;
 import project.qhk.fpt.edu.vn.muzic.screens.SongsFragment;
 
@@ -33,36 +33,30 @@ public class MusicPlayer {
     private ExoPlayer exoPlayer;
     private Context context;
 
+    private boolean readyPost;
+
     private MusicPlayer(Context context) {
         this.context = context;
         if (exoPlayer == null) {
             exoPlayer = ExoPlayer.Factory.newInstance(1);
-            exoPlayer.setPlayWhenReady(true);
 
             exoPlayer.addListener(new ExoPlayer.Listener() {
                 @Override
                 public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
                     System.out.println("onPlayerStateChanged: " + playbackState);
 
-                    if (playbackState == ExoPlayer.STATE_PREPARING) {
-                        new CountDownTimer(200, 1) {
-                            @Override
-                            public void onTick(long millisUntilFinished) {
-
-                            }
-
-                            @Override
-                            public void onFinish() {
-                                exoPlayer.seekTo(0);
-                                EventBus.getDefault().post(new Notifier(MainActivity.class.getSimpleName()));
-                            }
-                        }.start();
+                    if (playbackState == ExoPlayer.STATE_PREPARING) readyPost = true;
+                    if (playbackState == ExoPlayer.STATE_READY) {
+                        if (readyPost) {
+                            readyPost = false;
+                            EventBus.getDefault().post(new PlayNotifier(MainActivity.class.getSimpleName()));
+                        }
                     }
                 }
 
                 @Override
                 public void onPlayWhenReadyCommitted() {
-                    System.out.println("onPlayWhenReadyCommitted");
+                    System.out.println("onPlayWhenReadyCommitted: " + exoPlayer.getPlaybackState());
                 }
 
                 @Override
@@ -71,6 +65,7 @@ public class MusicPlayer {
                 }
             });
         }
+
     }
 
     public long getDuration() {
@@ -85,15 +80,13 @@ public class MusicPlayer {
         ExtractorSampleSource sampleSource = new ExtractorSampleSource(
                 radioUri, dataSource, allocator, BUFFER_SEGMENT_SIZE * BUFFER_SEGMENT_COUNT);
         MediaCodecAudioTrackRenderer audioRenderer = new MediaCodecAudioTrackRenderer(sampleSource);
+        exoPlayer.seekTo(0);
+        exoPlayer.setPlayWhenReady(true);
         exoPlayer.prepare(audioRenderer);
     }
 
     public void seekTo(int progress) {
         exoPlayer.seekTo(progress);
-    }
-
-    public void resume() {
-        exoPlayer.setPlayWhenReady(true);
     }
 
     public void changeState() {
