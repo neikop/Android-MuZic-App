@@ -15,11 +15,13 @@ public class Song extends RealmObject {
     private String name;
     private String artist;
     private String imageLink;
+    private String imagePicture;
 
     public static Song create(String mediaID, MediaFeed.Feed.Entry entry) {
         Song song = new Song();
         song.genreID = mediaID;
         song.name = entry.getName();
+        if (entry.getName().length() > 100) song.name = song.name.substring(0, 100);
         song.artist = entry.getArtist();
         song.imageLink = entry.getImageLink();
         return song;
@@ -39,5 +41,13 @@ public class Song extends RealmObject {
 
     public String getImageLink() {
         return imageLink;
+    }
+
+    public void setImagePicture(String imagePicture) {
+        this.imagePicture = imagePicture;
+    }
+
+    public String getImagePicture() {
+        return imagePicture;
     }
 }

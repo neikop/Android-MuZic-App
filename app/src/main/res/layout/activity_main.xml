@@ -56,7 +56,6 @@
                     android:src="@drawable/image_song_demo" />
 
                 <RelativeLayout
-                    android:id="@+id/cute_layout"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
@@ -107,5 +106,11 @@
         </RelativeLayout>
 
     </LinearLayout>
+
+    <FrameLayout
+        android:id="@+id/layout_mommy"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+    </FrameLayout>
 
 </RelativeLayout>

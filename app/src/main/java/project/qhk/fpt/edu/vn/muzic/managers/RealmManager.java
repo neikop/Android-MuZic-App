@@ -1,6 +1,7 @@
 package project.qhk.fpt.edu.vn.muzic.managers;
 
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 
 import java.util.List;
 
@@ -46,6 +47,12 @@ public class RealmManager {
     public void addSong(Song song) {
         beginTransaction();
         getRealm().copyToRealm(song);
+        commitTransaction();
+    }
+
+    public void editSongPicture(Song song, String picture) {
+        beginTransaction();
+        song.setImagePicture(picture);
         commitTransaction();
     }
 

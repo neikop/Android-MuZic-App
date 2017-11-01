@@ -2,7 +2,6 @@ package project.qhk.fpt.edu.vn.muzic.managers;
 
 import android.content.Context;
 import android.net.Uri;
-import android.os.CountDownTimer;
 
 import com.google.android.exoplayer.ExoPlaybackException;
 import com.google.android.exoplayer.ExoPlayer;
@@ -17,9 +16,7 @@ import com.google.android.exoplayer.util.Util;
 import org.greenrobot.eventbus.EventBus;
 
 import project.qhk.fpt.edu.vn.muzic.MainActivity;
-import project.qhk.fpt.edu.vn.muzic.objects.PlayNotifier;
-import project.qhk.fpt.edu.vn.muzic.objects.WaitingChanger;
-import project.qhk.fpt.edu.vn.muzic.screens.SongsFragment;
+import project.qhk.fpt.edu.vn.muzic.objects.SimpleNotifier;
 
 /**
  * Created by WindzLord on 10/29/2017.
@@ -31,12 +28,10 @@ public class MusicPlayer {
     private static final int BUFFER_SEGMENT_COUNT = 256;
 
     private ExoPlayer exoPlayer;
-    private Context context;
 
     private boolean readyPost;
 
     private MusicPlayer(Context context) {
-        this.context = context;
         if (exoPlayer == null) {
             exoPlayer = ExoPlayer.Factory.newInstance(1);
 
@@ -49,7 +44,8 @@ public class MusicPlayer {
                     if (playbackState == ExoPlayer.STATE_READY) {
                         if (readyPost) {
                             readyPost = false;
-                            EventBus.getDefault().post(new PlayNotifier(MainActivity.class.getSimpleName()));
+                            EventBus.getDefault().post(new SimpleNotifier(MainActivity.class.getSimpleName()));
+                            exoPlayer.setPlayWhenReady(true);
                         }
                     }
                 }
@@ -65,14 +61,9 @@ public class MusicPlayer {
                 }
             });
         }
-
     }
 
-    public long getDuration() {
-        return exoPlayer.getDuration();
-    }
-
-    public void prepare(String stream) {
+    public void prepare(Context context, String stream) {
         Uri radioUri = Uri.parse(stream);
         Allocator allocator = new DefaultAllocator(BUFFER_SEGMENT_SIZE);
         String userAgent = Util.getUserAgent(context, "MusicPlayer");
@@ -81,8 +72,15 @@ public class MusicPlayer {
                 radioUri, dataSource, allocator, BUFFER_SEGMENT_SIZE * BUFFER_SEGMENT_COUNT);
         MediaCodecAudioTrackRenderer audioRenderer = new MediaCodecAudioTrackRenderer(sampleSource);
         exoPlayer.seekTo(0);
-        exoPlayer.setPlayWhenReady(true);
         exoPlayer.prepare(audioRenderer);
+    }
+
+    public int getProgress() {
+        return (int) exoPlayer.getCurrentPosition();
+    }
+
+    public int getDuration() {
+        return (int) exoPlayer.getDuration();
     }
 
     public void seekTo(int progress) {
@@ -103,8 +101,4 @@ public class MusicPlayer {
         instance = new MusicPlayer(context);
     }
 
-    private void changeWaiting(boolean waiting) {
-        EventBus.getDefault().post(new WaitingChanger(
-                SongsFragment.class.getSimpleName(), waiting));
-    }
 }

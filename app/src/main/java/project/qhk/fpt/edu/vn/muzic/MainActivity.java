@@ -15,6 +15,7 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.nostra13.universalimageloader.core.ImageLoader;
 
@@ -29,12 +30,14 @@ import project.qhk.fpt.edu.vn.muzic.managers.RealmManager;
 import project.qhk.fpt.edu.vn.muzic.models.Genre;
 import project.qhk.fpt.edu.vn.muzic.models.Song;
 import project.qhk.fpt.edu.vn.muzic.models.api_models.SongMp3;
-import project.qhk.fpt.edu.vn.muzic.objects.FragmentNotifier;
-import project.qhk.fpt.edu.vn.muzic.objects.PlayNotifier;
+import project.qhk.fpt.edu.vn.muzic.objects.FragmentChanger;
+import project.qhk.fpt.edu.vn.muzic.objects.PlayerNotifier;
+import project.qhk.fpt.edu.vn.muzic.objects.SimpleNotifier;
 import project.qhk.fpt.edu.vn.muzic.objects.SongChanger;
 import project.qhk.fpt.edu.vn.muzic.objects.WaitingChanger;
 import project.qhk.fpt.edu.vn.muzic.screens.GenresFragment;
 import project.qhk.fpt.edu.vn.muzic.screens.MainActivityFragment;
+import project.qhk.fpt.edu.vn.muzic.screens.PlayerFragment;
 import project.qhk.fpt.edu.vn.muzic.screens.SongsFragment;
 import project.qhk.fpt.edu.vn.muzic.services.MusicService;
 import retrofit2.Call;
@@ -120,7 +123,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Subscribe
-    public void onFragmentEvent(FragmentNotifier changer) {
+    public void onFragmentEvent(FragmentChanger changer) {
         openFragment(changer.getSource(), changer.getFragment(), changer.isAddToBackStack());
     }
 
@@ -146,10 +149,11 @@ public class MainActivity extends AppCompatActivity {
     private int indexSong;
     private boolean isPlaying;
     private boolean isWaiting;
+    private boolean isSyncing = false;
 
     private CountDownTimer countDownTimer;
-    private long remainTime;
-    private long zTotalTime;
+    private int remainTime;
+    private int zTotalTime;
 
     @Subscribe
     public void onSongEvent(SongChanger event) {
@@ -178,37 +182,45 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<SongMp3> call, Response<SongMp3> response) {
                 System.out.println("getSongMp3 onResponse");
-                changeWaiting(false);
 
                 SongMp3 mp3song = response.body();
-                if (mp3song == null)
-                    System.out.println("NOT FOUND");
-                else MusicPlayer.getInstance().prepare(mp3song.getStream());
+                if (mp3song == null) {
+                    Toast.makeText(getApplicationContext(), "NOT FOUND", Toast.LENGTH_SHORT).show();
+                    changeWaiting(false);
+                } else {
+                    RealmManager.getInstance().editSongPicture(song, mp3song.getPicture());
+                    MusicPlayer.getInstance().prepare(getApplicationContext(), mp3song.getStream());
+                }
             }
 
             @Override
             public void onFailure(Call<SongMp3> call, Throwable t) {
-                System.out.println("getSongMp3 onFailure");
+                Toast.makeText(getApplicationContext(), "FAILURE", Toast.LENGTH_SHORT).show();
                 changeWaiting(false);
             }
         });
     }
 
     @Subscribe
-    public void goPlay(PlayNotifier event) {
+    public void goPlay(SimpleNotifier event) {
         if (!this.getClass().getSimpleName().equals(event.getTarget())) return;
+        changeWaiting(false);
 
         isPlaying = true;
+        EventBus.getDefault().post(new PlayerNotifier(PlayerFragment.class.getSimpleName()));
+
         zTotalTime = MusicPlayer.getInstance().getDuration();
-        System.out.println("Time: " + zTotalTime);
-        cuteSeekBar.setMax((int) zTotalTime);
-        cuteSeekBar.setProgress(0);
+        remainTime = zTotalTime - MusicPlayer.getInstance().getProgress();
+
+        cuteSeekBar.setMax(zTotalTime);
+        cuteSeekBar.setProgress(zTotalTime - remainTime);
+
         cuteSongName.setText(song.getName());
         cuteSongArtist.setText(song.getArtist());
-        cuteImageButtonGo.setImageResource(R.drawable.ic_pause_white_48px);
         ImageLoader.getInstance().displayImage(song.getImageLink(), cuteSongImage);
         cuteSongImage.startAnimation(rotateAnimation);
 
+        cuteImageButtonGo.setImageResource(R.drawable.ic_pause_white_48px);
         countDownTimerCancel(zTotalTime);
 
         cutePlayer.setVisibility(View.VISIBLE);
@@ -230,37 +242,106 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void nextSong() {
+    public void goNextSong() {
         if (isWaiting) return;
-        prePlay(++indexSong % 50);
+        prePlay(++indexSong % Constant.MAX_SONG);
+    }
+
+    public void goPreviousSong() {
+        if (isWaiting) return;
+        prePlay((indexSong + Constant.MAX_SONG - 1) % Constant.MAX_SONG);
     }
 
     private void countDownTimerCancel(long millisInFuture) {
         if (countDownTimer != null) countDownTimer.cancel();
+
+        if (isSyncing) return;
         if (millisInFuture == -1) return;
+
         countDownTimer = new CountDownTimer(millisInFuture + 1, 1) {
             @Override
             public void onTick(long millisUntilFinished) {
-                remainTime = millisUntilFinished;
-                cuteSeekBar.setProgress((int) (zTotalTime - remainTime));
+                remainTime = (int) millisUntilFinished;
+                cuteSeekBar.setProgress(zTotalTime - remainTime);
             }
 
             @Override
             public void onFinish() {
-                nextSong();
+                goNextSong();
             }
         }.start();
     }
 
+    @OnClick(R.id.cute_player)
+    public void goPlayer() {
+        if (isWaiting) return;
+        if (isSyncing) return;
+
+        isSyncing = true;
+        countDownTimerCancel(-1);
+
+        getSupportFragmentManager().beginTransaction()
+                .setCustomAnimations(R.anim.go_up, R.anim.nothing, R.anim.nothing, R.anim.go_down)
+                .replace(R.id.layout_mommy, new PlayerFragment())
+                .addToBackStack(null).commit();
+    }
+
     private void changeWaiting(boolean waiting) {
         isWaiting = waiting;
-        EventBus.getDefault().post(new WaitingChanger(
-                SongsFragment.class.getSimpleName(), waiting));
+        EventBus.getDefault().post(new WaitingChanger(SongsFragment.class.getSimpleName(), waiting));
+        EventBus.getDefault().post(new WaitingChanger(PlayerFragment.class.getSimpleName(), waiting));
     }
 
     @Override
     protected void onStop() {
         super.onStop();
         EventBus.getDefault().unregister(this);
+    }
+
+    /**
+     * PLAYER ================================================================================
+     */
+
+    public LinearLayout getLayoutDaddy() {
+        return layoutDaddy;
+    }
+
+    public Genre getGenre() {
+        return genre;
+    }
+
+    public Song getSong() {
+        return song;
+    }
+
+    public int getIndexSong() {
+        return indexSong;
+    }
+
+    public boolean isPlaying() {
+        return isPlaying;
+    }
+
+    public void goContinue() {
+        isSyncing = false;
+
+        zTotalTime = MusicPlayer.getInstance().getDuration();
+        remainTime = zTotalTime - MusicPlayer.getInstance().getProgress();
+
+        cuteSeekBar.setMax(zTotalTime);
+        cuteSeekBar.setProgress(zTotalTime - remainTime);
+
+        cuteSongName.setText(song.getName());
+        cuteSongArtist.setText(song.getArtist());
+        ImageLoader.getInstance().displayImage(song.getImageLink(), cuteSongImage);
+
+        if (isPlaying) {
+            cuteImageButtonGo.setImageResource(R.drawable.ic_pause_white_48px);
+            cuteSongImage.startAnimation(rotateAnimation);
+            countDownTimerCancel(remainTime);
+        } else {
+            cuteImageButtonGo.setImageResource(R.drawable.ic_play_arrow_white_48px);
+            cuteSongImage.clearAnimation();
+        }
     }
 }

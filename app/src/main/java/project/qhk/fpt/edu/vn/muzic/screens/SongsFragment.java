@@ -49,7 +49,7 @@ public class SongsFragment extends Fragment {
     ProgressBar waitingBar;
 
     private Genre genre;
-    private boolean waiting;
+    private boolean isWaiting;
 
     public void getGenreIndex(int index) {
         genre = RealmManager.getInstance().getGenres().get(index);
@@ -89,7 +89,7 @@ public class SongsFragment extends Fragment {
         }
         textGenreSongs.setText(genre.getName().toUpperCase());
 
-        waiting = false;
+        isWaiting = false;
         waitingBar.setVisibility(View.INVISIBLE);
     }
 
@@ -105,7 +105,7 @@ public class SongsFragment extends Fragment {
 
             @Override
             public void onItemClick(View view, int position) {
-                if (waiting) return;
+                if (isWaiting) return;
                 EventBus.getDefault().post(new SongChanger(
                         MainActivity.class.getSimpleName(), genre.getIndex(), position));
             }
@@ -119,7 +119,7 @@ public class SongsFragment extends Fragment {
 
     @OnClick(R.id.button_play)
     public void onPlayPressed() {
-        if (waiting) return;
+        if (isWaiting) return;
         EventBus.getDefault().post(new SongChanger(
                 MainActivity.class.getSimpleName(), genre.getIndex(), 0));
     }
@@ -133,8 +133,8 @@ public class SongsFragment extends Fragment {
     public void changeWaiting(WaitingChanger event) {
         if (!this.getClass().getSimpleName().equals(event.getTarget())) return;
 
-        waiting = event.isWaiting();
-        waitingBar.setVisibility(waiting ? View.VISIBLE : View.INVISIBLE);
+        isWaiting = event.isWaiting();
+        waitingBar.setVisibility(isWaiting ? View.VISIBLE : View.INVISIBLE);
     }
 
     @Override

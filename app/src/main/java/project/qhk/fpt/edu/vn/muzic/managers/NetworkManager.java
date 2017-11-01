@@ -9,6 +9,7 @@ import android.net.NetworkInfo;
  */
 
 public class NetworkManager {
+
     private ConnectivityManager connectivityManager;
 
     private NetworkManager(Context context) {
