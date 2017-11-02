@@ -172,12 +172,11 @@ public class LoginFragment extends Fragment {
     @OnClick(R.id.create_account_button)
     public void onCreateAccountButton(){
         System.out.println("goCreateAccount");
-        waitingBar.setVisibility(View.VISIBLE);
-
         if (!register_password.getText().toString().equals(register_retype_password.getText().toString())){
             Toast.makeText(getContext(), "Please input correct Retype Password", Toast.LENGTH_SHORT).show();
             return;
         }
+        waitingBar.setVisibility(View.VISIBLE);
         JsonObject object = new JsonObject();
         object.addProperty("username", register_username.getText().toString());
         object.addProperty("password", register_password.getText().toString());
