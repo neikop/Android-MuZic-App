@@ -10,11 +10,43 @@ import android.content.SharedPreferences;
 public class PreferenceManager {
 
     private static final String KEY = "PreferenceManager";
+    private static final String USERNAME = "USERNAME";
+    private static final String TOKEN = "TOKEN";
 
     private SharedPreferences sharedPreferences;
 
     public PreferenceManager(Context context) {
         sharedPreferences = context.getSharedPreferences(KEY, Context.MODE_PRIVATE);
+    }
+
+    public void putUsername(String username) {
+        sharedPreferences.edit().putString(USERNAME, username).apply();
+    }
+
+    public String getUsername() {
+        return sharedPreferences.getString(USERNAME, "");
+    }
+
+    public void putToken(String token) {
+        sharedPreferences.edit().putString(TOKEN, token).apply();
+    }
+
+    public String getToken() {
+        return sharedPreferences.getString(TOKEN, "");
+    }
+
+    public boolean isLogin() {
+        return !getToken().isEmpty();
+    }
+
+    public void login(String username, String token) {
+        putUsername(username);
+        putToken(token);
+    }
+
+    public void logout() {
+        putUsername("");
+        putToken("");
     }
 
     private static PreferenceManager instance;

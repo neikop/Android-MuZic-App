@@ -7,18 +7,27 @@ import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import org.greenrobot.eventbus.EventBus;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
+import io.realm.Realm;
+import io.realm.RealmList;
 import project.qhk.fpt.edu.vn.muzic.Logistic;
 import project.qhk.fpt.edu.vn.muzic.R;
+import project.qhk.fpt.edu.vn.muzic.managers.RealmManager;
+import project.qhk.fpt.edu.vn.muzic.models.Playlist;
+import project.qhk.fpt.edu.vn.muzic.notifiers.FragmentChanger;
 
 /**
  * A simple {@link Fragment} subclass.
  */
-public class MainActivityFragment extends Fragment {
+public class MainFragment extends Fragment {
 
     @BindView(R.id.toolbar)
     Toolbar myToolbar;
@@ -30,7 +39,7 @@ public class MainActivityFragment extends Fragment {
     ViewPager myViewPager;
 
 
-    public MainActivityFragment() {
+    public MainFragment() {
         // Required empty public constructor
     }
 
@@ -54,6 +63,21 @@ public class MainActivityFragment extends Fragment {
     private void goTabLayout() {
         myToolbar.setTitle(Logistic.TITLE);
         myToolbar.inflateMenu(R.menu.menu_main);
+
+        myToolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                System.out.println("onMenuItemClick");
+                EventBus.getDefault().post(new FragmentChanger(
+                        MainFragment.class.getSimpleName(), new LoginFragment(), true));
+
+                RealmManager.getInstance().clearPlaylist();
+                RealmManager.getInstance().addPlaylist(Playlist.create("One"));
+                RealmManager.getInstance().addPlaylist(Playlist.create("Two"));
+                RealmManager.getInstance().addPlaylist(Playlist.create("Three"));
+                return true;
+            }
+        });
 
         myTabLayout.addTab(myTabLayout.newTab().setText(Logistic.GENRES));
         myTabLayout.addTab(myTabLayout.newTab().setText(Logistic.PLAYLIST));

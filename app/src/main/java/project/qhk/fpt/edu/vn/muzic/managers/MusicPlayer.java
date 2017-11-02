@@ -16,6 +16,7 @@ import com.google.android.exoplayer.util.Util;
 import org.greenrobot.eventbus.EventBus;
 
 import project.qhk.fpt.edu.vn.muzic.MainActivity;
+import project.qhk.fpt.edu.vn.muzic.models.Song;
 import project.qhk.fpt.edu.vn.muzic.notifiers.SimpleNotifier;
 
 /**
@@ -63,7 +64,9 @@ public class MusicPlayer {
         }
     }
 
-    public void prepare(Context context, String stream) {
+    private Song song;
+
+    public void prepare(Context context, String stream, Song song) {
         Uri radioUri = Uri.parse(stream);
         Allocator allocator = new DefaultAllocator(BUFFER_SEGMENT_SIZE);
         String userAgent = Util.getUserAgent(context, "MusicPlayer");
@@ -73,6 +76,8 @@ public class MusicPlayer {
         MediaCodecAudioTrackRenderer audioRenderer = new MediaCodecAudioTrackRenderer(sampleSource);
         exoPlayer.seekTo(0);
         exoPlayer.prepare(audioRenderer);
+
+        this.song = song;
     }
 
     public int getProgress() {
@@ -89,6 +94,10 @@ public class MusicPlayer {
 
     public void changeState() {
         exoPlayer.setPlayWhenReady(!exoPlayer.getPlayWhenReady());
+    }
+
+    public Song getSong() {
+        return song;
     }
 
     private static MusicPlayer instance;

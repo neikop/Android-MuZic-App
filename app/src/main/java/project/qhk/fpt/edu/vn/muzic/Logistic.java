@@ -1,5 +1,6 @@
 package project.qhk.fpt.edu.vn.muzic;
 
+import android.view.Menu;
 import android.view.animation.Animation;
 import android.view.animation.LinearInterpolator;
 import android.view.animation.RotateAnimation;
@@ -17,6 +18,8 @@ public class Logistic {
     public final static Integer MAX_SONG = 50;
 
     public final static String TOP_SONG_API = "https://iTunes.apple.com";
+
+    public final static String SERVER_API = "https://qhkmusic.herokuapp.com";
 
     public final static String GET_MP3_API = "http://103.1.209.134";
 
@@ -38,4 +41,5 @@ public class Logistic {
         rotateAnimation.setRepeatCount(Animation.INFINITE);
         return rotateAnimation;
     }
+
 }

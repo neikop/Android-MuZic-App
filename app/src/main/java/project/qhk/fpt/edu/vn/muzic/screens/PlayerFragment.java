@@ -1,13 +1,24 @@
 package project.qhk.fpt.edu.vn.muzic.screens;
 
 
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.Toolbar;
+import android.text.InputType;
+import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.PopupMenu;
 import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -24,6 +35,9 @@ import project.qhk.fpt.edu.vn.muzic.Logistic;
 import project.qhk.fpt.edu.vn.muzic.MainActivity;
 import project.qhk.fpt.edu.vn.muzic.R;
 import project.qhk.fpt.edu.vn.muzic.managers.MusicPlayer;
+import project.qhk.fpt.edu.vn.muzic.managers.PopupManager;
+import project.qhk.fpt.edu.vn.muzic.managers.RealmManager;
+import project.qhk.fpt.edu.vn.muzic.models.Playlist;
 import project.qhk.fpt.edu.vn.muzic.models.Song;
 import project.qhk.fpt.edu.vn.muzic.notifiers.SimpleNotifier;
 import project.qhk.fpt.edu.vn.muzic.notifiers.WaitingChanger;
@@ -84,6 +98,7 @@ public class PlayerFragment extends Fragment {
     private void settingThingsUp(View view) {
         ButterKnife.bind(this, view);
         EventBus.getDefault().register(this);
+        PopupManager.init(getContext(), buttonLike);
 
         playerSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
@@ -230,6 +245,16 @@ public class PlayerFragment extends Fragment {
     public void onStop() {
         super.onStop();
         EventBus.getDefault().unregister(this);
+    }
+
+    @BindView(R.id.player_button_like)
+    View buttonLike;
+
+    @OnClick(R.id.player_button_like)
+    public void onLikePressed() {
+        System.out.println("onLikePressed");
+
+        PopupManager.getInstance().show();
     }
 
 }

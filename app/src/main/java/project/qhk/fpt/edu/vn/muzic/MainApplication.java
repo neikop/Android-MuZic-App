@@ -74,7 +74,7 @@ public class MainApplication extends Application {
     }
 
     private void goTopSong() {
-        System.out.println("goTopSong");
+        System.out.println("Service goTopSong");
         RealmManager.getInstance().clearSong();
 
         Retrofit mediaRetrofit = new Retrofit.Builder()

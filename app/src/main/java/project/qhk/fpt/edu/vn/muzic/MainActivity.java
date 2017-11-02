@@ -8,7 +8,6 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -32,7 +31,8 @@ import project.qhk.fpt.edu.vn.muzic.notifiers.SimpleNotifier;
 import project.qhk.fpt.edu.vn.muzic.notifiers.SongChanger;
 import project.qhk.fpt.edu.vn.muzic.notifiers.WaitingChanger;
 import project.qhk.fpt.edu.vn.muzic.screens.GenresFragment;
-import project.qhk.fpt.edu.vn.muzic.screens.MainActivityFragment;
+import project.qhk.fpt.edu.vn.muzic.screens.LoginFragment;
+import project.qhk.fpt.edu.vn.muzic.screens.MainFragment;
 import project.qhk.fpt.edu.vn.muzic.screens.PlayerFragment;
 import project.qhk.fpt.edu.vn.muzic.screens.SongsFragment;
 import project.qhk.fpt.edu.vn.muzic.services.MusicService;
@@ -78,7 +78,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void goContent() {
-        openFragment(this.getClass().getSimpleName(), new MainActivityFragment(), false);
+        openFragment(this.getClass().getSimpleName(), new MainFragment(), false);
 
         cutePlayer.setVisibility(View.GONE);
         cuteSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -103,14 +103,19 @@ public class MainActivity extends AppCompatActivity {
 
     @Subscribe
     public void onFragmentEvent(FragmentChanger changer) {
-        openFragment(changer.getSource(), changer.getFragment(), changer.isAddToBackStack());
+        if (changer.getSource().equals(MainFragment.class.getSimpleName())) {
+            getSupportFragmentManager().beginTransaction()
+                    .setCustomAnimations(R.anim.go_down_in, R.anim.nothing, R.anim.nothing, R.anim.go_down_out)
+                    .replace(R.id.layout_mommy, new LoginFragment())
+                    .addToBackStack(null).commit();
+        } else openFragment(changer.getSource(), changer.getFragment(), changer.isAddToBackStack());
     }
 
     private void openFragment(String source, Fragment fragment, boolean addToBackStack) {
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
 
         if (source.equals(GenresFragment.class.getSimpleName())) {
-            fragmentTransaction.setCustomAnimations(R.anim.fade_in, R.anim.fade_out,
+            fragmentTransaction.setCustomAnimations(R.anim.go_fade_in, R.anim.go_fade_out,
                     R.anim.go_right_in, R.anim.go_right_out);
         }
 
@@ -168,7 +173,7 @@ public class MainActivity extends AppCompatActivity {
                     changeWaiting(false);
                 } else {
                     RealmManager.getInstance().editSongPicture(song, mp3song.getPicture());
-                    MusicPlayer.getInstance().prepare(getApplicationContext(), mp3song.getStream());
+                    MusicPlayer.getInstance().prepare(getApplicationContext(), mp3song.getStream(), song);
                 }
             }
 
@@ -263,7 +268,7 @@ public class MainActivity extends AppCompatActivity {
         countDownTimerCancel(-1);
 
         getSupportFragmentManager().beginTransaction()
-                .setCustomAnimations(R.anim.go_up, R.anim.nothing, R.anim.nothing, R.anim.go_down)
+                .setCustomAnimations(R.anim.go_up_in, R.anim.nothing, R.anim.nothing, R.anim.go_down_out)
                 .replace(R.id.layout_mommy, new PlayerFragment())
                 .addToBackStack(null).commit();
     }

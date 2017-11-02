@@ -16,11 +16,11 @@
             android:orientation="horizontal">
 
             <RelativeLayout
+                android:id="@+id/player_button_back"
                 android:layout_width="50dp"
                 android:layout_height="match_parent">
 
                 <ImageView
-                    android:id="@+id/player_button_back"
                     android:layout_width="20dp"
                     android:layout_height="20dp"
                     android:layout_centerInParent="true"
@@ -75,11 +75,11 @@
                 android:layout_height="match_parent">
 
                 <ImageView
-                    android:id="@+id/button_download"
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
+                    android:id="@+id/player_button_like"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
                     android:layout_centerInParent="true"
-                    android:src="@drawable/ic_file_download_white_48px" />
+                    android:src="@drawable/ic_add_white_48dp" />
 
             </RelativeLayout>
 
