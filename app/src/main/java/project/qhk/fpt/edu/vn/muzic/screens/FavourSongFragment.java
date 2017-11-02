@@ -1,7 +1,6 @@
 package project.qhk.fpt.edu.vn.muzic.screens;
 
 
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
@@ -9,15 +8,13 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
-import java.io.IOException;
-import java.io.InputStream;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -28,43 +25,46 @@ import project.qhk.fpt.edu.vn.muzic.adapters.SongAdapter;
 import project.qhk.fpt.edu.vn.muzic.adapters.listeners.RecyclerViewListener;
 import project.qhk.fpt.edu.vn.muzic.managers.RealmManager;
 import project.qhk.fpt.edu.vn.muzic.models.Genre;
-import project.qhk.fpt.edu.vn.muzic.objects.SongChanger;
-import project.qhk.fpt.edu.vn.muzic.objects.WaitingChanger;
+import project.qhk.fpt.edu.vn.muzic.models.Song;
+import project.qhk.fpt.edu.vn.muzic.notifiers.SongChanger;
+import project.qhk.fpt.edu.vn.muzic.notifiers.WaitingChanger;
 
 /**
  * A simple {@link Fragment} subclass.
  */
-public class SongsFragment extends Fragment {
+public class FavourSongFragment extends Fragment {
 
-    @BindView(R.id.image_genre_songs)
-    ImageView imageGenreSongs;
+    @BindView(R.id.text_favour_name)
+    TextView textFavourName;
 
-    @BindView(R.id.text_genre_songs)
-    TextView textGenreSongs;
+    @BindView(R.id.text_favour_size)
+    TextView textFavourSize;
 
-    @BindView(R.id.recycler_view_songs)
+    @BindView(R.id.recycler_view_favour_songs)
     RecyclerView recyclerViewSongs;
 
-    @BindView(R.id.progress_bar_waiting)
+    @BindView(R.id.progress_bar_favour_waiting)
     ProgressBar waitingBar;
 
-    private Genre genre;
-    private boolean waiting;
+    private Genre playlist;
+    private List<Song> songList;
 
-    public void getGenreIndex(int index) {
-        genre = RealmManager.getInstance().getGenres().get(index);
-    }
+    private boolean isWaiting;
 
-    public SongsFragment() {
+    public FavourSongFragment() {
         // Required empty public constructor
     }
 
+    public void setPlaylistIndex(int index) {
+        playlist = RealmManager.getInstance().getAlivePlaylist().get(index);
+        songList = RealmManager.getInstance().getSongs(playlist.getGenreID());
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_songs, container, false);
+        View view = inflater.inflate(R.layout.fragment_favour_song, container, false);
         settingThingsUp(view);
 
         return view;
@@ -75,29 +75,21 @@ public class SongsFragment extends Fragment {
         EventBus.getDefault().register(this);
 
         goContent();
-        goTopSong();
+        goFavourSong();
     }
 
     private void goContent() {
-        try {
-            InputStream stream = getActivity().getAssets().open("images/genre_" + genre.getNumber() + ".png");
-            Drawable drawable = Drawable.createFromStream(stream, null);
-            imageGenreSongs.setImageDrawable(drawable);
-            stream.close();
-        } catch (IOException ex) {
+        textFavourName.setText(playlist.getName());
+        textFavourSize.setText(songList.size() + " songs");
 
-        }
-        textGenreSongs.setText(genre.getName().toUpperCase());
-
-        waiting = false;
+        isWaiting = false;
         waitingBar.setVisibility(View.INVISIBLE);
     }
 
-    private void goTopSong() {
+    private void goFavourSong() {
         recyclerViewSongs.setLayoutManager(new LinearLayoutManager(
                 getActivity(), LinearLayoutManager.VERTICAL, false));
-        recyclerViewSongs.setAdapter(new SongAdapter(
-                RealmManager.getInstance().getSongs(genre.getNumber())));
+        recyclerViewSongs.setAdapter(new SongAdapter(songList));
         recyclerViewSongs.getAdapter().notifyDataSetChanged();
 
         recyclerViewSongs.addOnItemTouchListener(new RecyclerViewListener(
@@ -105,9 +97,9 @@ public class SongsFragment extends Fragment {
 
             @Override
             public void onItemClick(View view, int position) {
-                if (waiting) return;
+                if (isWaiting) return;
                 EventBus.getDefault().post(new SongChanger(
-                        MainActivity.class.getSimpleName(), genre.getIndex(), position));
+                        MainActivity.class.getSimpleName(), playlist, position));
             }
 
             @Override
@@ -117,7 +109,14 @@ public class SongsFragment extends Fragment {
         }));
     }
 
-    @OnClick(R.id.image_button_back)
+    @OnClick(R.id.button_favour_play)
+    public void onPlayPressed() {
+        if (isWaiting) return;
+        EventBus.getDefault().post(new SongChanger(
+                MainActivity.class.getSimpleName(), playlist, 0));
+    }
+
+    @OnClick(R.id.button_favour_back)
     public void onBackPressed() {
         getActivity().onBackPressed();
     }
@@ -125,8 +124,9 @@ public class SongsFragment extends Fragment {
     @Subscribe
     public void changeWaiting(WaitingChanger event) {
         if (!this.getClass().getSimpleName().equals(event.getTarget())) return;
-        waiting = event.isWaiting();
-        waitingBar.setVisibility(waiting ? View.VISIBLE : View.INVISIBLE);
+
+        isWaiting = event.isWaiting();
+        waitingBar.setVisibility(isWaiting ? View.VISIBLE : View.INVISIBLE);
     }
 
     @Override

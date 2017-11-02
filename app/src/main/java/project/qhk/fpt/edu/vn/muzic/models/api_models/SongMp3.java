@@ -18,10 +18,17 @@ public class SongMp3 {
         return source.url;
     }
 
+    public String getPicture() {
+        return source.picture;
+    }
+
     public class Source {
 
         @SerializedName("url")
         private String url;
+
+        @SerializedName("thumbnail")
+        private String picture;
 
     }
 

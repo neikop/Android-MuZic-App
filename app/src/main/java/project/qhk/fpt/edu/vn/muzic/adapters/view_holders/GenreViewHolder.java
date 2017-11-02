@@ -37,7 +37,7 @@ public class GenreViewHolder extends RecyclerView.ViewHolder {
 
     public void bind(Genre genre) {
         try {
-            InputStream stream = context.getAssets().open("images/genre_" + genre.getNumber() + ".png");
+            InputStream stream = context.getAssets().open("images/genre_" + genre.getGenreID() + ".png");
             Drawable drawable = Drawable.createFromStream(stream, null);
             imageView.setImageDrawable(drawable);
             stream.close();

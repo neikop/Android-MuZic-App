@@ -17,7 +17,7 @@ import butterknife.ButterKnife;
 import project.qhk.fpt.edu.vn.muzic.R;
 import project.qhk.fpt.edu.vn.muzic.adapters.GenreAdapter;
 import project.qhk.fpt.edu.vn.muzic.adapters.listeners.RecyclerViewListener;
-import project.qhk.fpt.edu.vn.muzic.objects.FragmentChanger;
+import project.qhk.fpt.edu.vn.muzic.notifiers.FragmentChanger;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -65,10 +65,10 @@ public class GenresFragment extends Fragment {
                 getActivity(), recyclerViewGenres, new RecyclerViewListener.OnItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {
-                SongsFragment songsFragment = new SongsFragment();
-                songsFragment.getGenreIndex(position);
+                SongFragment songFragment = new SongFragment();
+                songFragment.setGenreIndex(position);
                 EventBus.getDefault().post(new FragmentChanger(
-                        GenresFragment.this.getClass().getSimpleName(), songsFragment, true));
+                        GenresFragment.this.getClass().getSimpleName(), songFragment, true));
             }
 
             @Override

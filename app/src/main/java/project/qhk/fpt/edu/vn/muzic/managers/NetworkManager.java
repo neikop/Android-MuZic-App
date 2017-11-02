@@ -9,18 +9,13 @@ import android.net.NetworkInfo;
  */
 
 public class NetworkManager {
+
+    private static NetworkManager instance;
     private ConnectivityManager connectivityManager;
 
     private NetworkManager(Context context) {
         connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
     }
-
-    public boolean isConnectedToInternet() {
-        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
-        return (networkInfo != null && networkInfo.isConnected());
-    }
-
-    private static NetworkManager instance;
 
     public static NetworkManager getInstance() {
         return instance;
@@ -28,5 +23,10 @@ public class NetworkManager {
 
     public static void init(Context context) {
         instance = new NetworkManager(context);
+    }
+
+    public boolean isConnectedToInternet() {
+        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+        return (networkInfo != null && networkInfo.isConnected());
     }
 }

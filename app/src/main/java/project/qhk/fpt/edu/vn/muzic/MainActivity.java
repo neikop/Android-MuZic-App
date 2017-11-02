@@ -1,31 +1,18 @@
 package project.qhk.fpt.edu.vn.muzic;
 
 import android.content.pm.ActivityInfo;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
-import android.view.animation.Animation;
-import android.view.animation.LinearInterpolator;
-import android.view.animation.RotateAnimation;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
-import com.google.android.exoplayer.ExoPlaybackException;
-import com.google.android.exoplayer.ExoPlayer;
-import com.google.android.exoplayer.MediaCodecAudioTrackRenderer;
-import com.google.android.exoplayer.extractor.ExtractorSampleSource;
-import com.google.android.exoplayer.upstream.Allocator;
-import com.google.android.exoplayer.upstream.DataSource;
-import com.google.android.exoplayer.upstream.DefaultAllocator;
-import com.google.android.exoplayer.upstream.DefaultUriDataSource;
-import com.google.android.exoplayer.util.Util;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
 import org.greenrobot.eventbus.EventBus;
@@ -39,13 +26,17 @@ import project.qhk.fpt.edu.vn.muzic.managers.RealmManager;
 import project.qhk.fpt.edu.vn.muzic.models.Genre;
 import project.qhk.fpt.edu.vn.muzic.models.Song;
 import project.qhk.fpt.edu.vn.muzic.models.api_models.SongMp3;
-import project.qhk.fpt.edu.vn.muzic.objects.FragmentChanger;
-import project.qhk.fpt.edu.vn.muzic.objects.Notifier;
-import project.qhk.fpt.edu.vn.muzic.objects.SongChanger;
-import project.qhk.fpt.edu.vn.muzic.objects.WaitingChanger;
+import project.qhk.fpt.edu.vn.muzic.notifiers.FragmentChanger;
+import project.qhk.fpt.edu.vn.muzic.notifiers.SimpleNotifier;
+import project.qhk.fpt.edu.vn.muzic.notifiers.SongChanger;
+import project.qhk.fpt.edu.vn.muzic.notifiers.WaitingChanger;
+import project.qhk.fpt.edu.vn.muzic.screens.FavourFragment;
+import project.qhk.fpt.edu.vn.muzic.screens.FavourSongFragment;
 import project.qhk.fpt.edu.vn.muzic.screens.GenresFragment;
-import project.qhk.fpt.edu.vn.muzic.screens.MainActivityFragment;
-import project.qhk.fpt.edu.vn.muzic.screens.SongsFragment;
+import project.qhk.fpt.edu.vn.muzic.screens.LoginFragment;
+import project.qhk.fpt.edu.vn.muzic.screens.PlayerFragment;
+import project.qhk.fpt.edu.vn.muzic.screens.SettingFragment;
+import project.qhk.fpt.edu.vn.muzic.screens.SongFragment;
 import project.qhk.fpt.edu.vn.muzic.services.MusicService;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -54,9 +45,6 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 
 public class MainActivity extends AppCompatActivity {
-
-    @BindView(R.id.layout_daddy)
-    LinearLayout layoutDaddy;
 
     @BindView(R.id.cute_player)
     RelativeLayout cutePlayer;
@@ -75,6 +63,20 @@ public class MainActivity extends AppCompatActivity {
 
     @BindView(R.id.cute_image_button_go)
     ImageView cuteImageButtonGo;
+    Song playingSong;
+    /**
+     * PLAYER ================================================================================
+     */
+
+    private Genre genre;
+    private Song song;
+    private int indexSong;
+    private boolean isPlaying;
+    private boolean isWaiting;
+    private boolean isSyncing = false;
+    private CountDownTimer countDownTimer;
+    private int remainTime;
+    private int zTotalTime;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,23 +94,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void goContent() {
-        openFragment(this.getClass().getSimpleName(), new MainActivityFragment(), false);
+        openFragment(this.getClass().getSimpleName(), new SettingFragment(), false);
 
         cutePlayer.setVisibility(View.GONE);
-        getAnimations();
-    }
-
-    private RotateAnimation rotateAnimation;
-
-    private void getAnimations() {
-        rotateAnimation = new RotateAnimation(0, 360,
-                Animation.RELATIVE_TO_SELF, 0.5f,
-                Animation.RELATIVE_TO_SELF, 0.5f);
-        rotateAnimation.setInterpolator(new LinearInterpolator());
-        rotateAnimation.setDuration(3000);
-        rotateAnimation.setFillAfter(true);
-        rotateAnimation.setRepeatCount(Animation.INFINITE);
-
         cuteSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean byUser) {
@@ -124,21 +112,27 @@ public class MainActivity extends AppCompatActivity {
             public void onStopTrackingTouch(SeekBar seekBar) {
                 MusicPlayer.getInstance().seekTo(seekBar.getProgress());
                 remainTime = zTotalTime - seekBar.getProgress();
-                countDownTimerCancel(remainTime);
+                if (isPlaying) countDownTimerCancel(remainTime);
             }
         });
     }
 
     @Subscribe
     public void onFragmentEvent(FragmentChanger changer) {
-        openFragment(changer.getSource(), changer.getFragment(), changer.isAddToBackStack());
+        if (changer.getSource().equals(SettingFragment.class.getSimpleName())) {
+            getSupportFragmentManager().beginTransaction()
+                    .setCustomAnimations(R.anim.go_down_in, R.anim.do_nothing, R.anim.do_nothing, R.anim.go_down_out)
+                    .replace(R.id.layout_mommy, new LoginFragment())
+                    .addToBackStack(null).commit();
+        } else openFragment(changer.getSource(), changer.getFragment(), changer.isAddToBackStack());
     }
 
     private void openFragment(String source, Fragment fragment, boolean addToBackStack) {
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
 
-        if (source.equals(GenresFragment.class.getSimpleName())) {
-            fragmentTransaction.setCustomAnimations(R.anim.fade_in, R.anim.fade_out,
+        if (source.equals(GenresFragment.class.getSimpleName())
+                || source.equals(FavourFragment.class.getSimpleName())) {
+            fragmentTransaction.setCustomAnimations(R.anim.go_fade_in, R.anim.go_fade_out,
                     R.anim.go_right_in, R.anim.go_right_out);
         }
 
@@ -147,38 +141,26 @@ public class MainActivity extends AppCompatActivity {
         fragmentTransaction.commit();
     }
 
-    /**
-     * PLAYER ================================================================================
-     */
-
-    private Genre genre;
-    private Song song;
-    private int indexSong;
-    private boolean isPlaying;
-    private boolean isWaiting;
-
-    private CountDownTimer countDownTimer;
-    private long remainTime;
-    private long zTotalTime;
-
     @Subscribe
     public void onSongEvent(SongChanger event) {
         if (!this.getClass().getSimpleName().equals(event.getTarget())) return;
-        genre = RealmManager.getInstance().getGenres().get(event.getIndexGenre());
-        if (RealmManager.getInstance().getSongs(genre.getNumber()).isEmpty()) return;
+
+        genre = event.getGenre();
+        if (RealmManager.getInstance().getSongs(genre.getGenreID()).isEmpty()) return;
+
         prePlay(event.getIndexSong());
     }
 
     private void prePlay(int indexSong) {
         this.indexSong = indexSong;
-        song = RealmManager.getInstance().getSongs(genre.getNumber()).get(indexSong);
+        song = RealmManager.getInstance().getSongs(genre.getGenreID()).get(indexSong);
         String search = song.getName() + " - " + song.getArtist();
         System.out.println("searching " + search);
 
         changeWaiting(true);
 
         Retrofit mediaRetrofit = new Retrofit.Builder()
-                .baseUrl(Constant.GET_MP3_API)
+                .baseUrl(Logistic.GET_MP3_API)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
         MusicService musicService = mediaRetrofit.create(MusicService.class);
@@ -186,36 +168,46 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<SongMp3> call, Response<SongMp3> response) {
                 System.out.println("getSongMp3 onResponse");
-                changeWaiting(false);
 
                 SongMp3 mp3song = response.body();
-                if (mp3song == null)
-                    System.out.println("NOT FOUND");
-                else MusicPlayer.getInstance().prepare(mp3song.getStream());
+                if (mp3song == null) {
+                    Toast.makeText(getApplicationContext(), "NOT FOUND", Toast.LENGTH_SHORT).show();
+                    changeWaiting(false);
+                } else {
+                    RealmManager.getInstance().editSongPicture(song, mp3song.getPicture());
+                    MusicPlayer.getInstance().prepare(getApplicationContext(), mp3song.getStream(), song);
+                }
             }
 
             @Override
             public void onFailure(Call<SongMp3> call, Throwable t) {
-                System.out.println("getSongMp3 onFailure");
+                Toast.makeText(getApplicationContext(), "FAILURE", Toast.LENGTH_SHORT).show();
                 changeWaiting(false);
             }
         });
     }
 
     @Subscribe
-    public void goPlay(Notifier event) {
+    public void goPlay(SimpleNotifier event) {
         if (!this.getClass().getSimpleName().equals(event.getTarget())) return;
+        changeWaiting(false);
 
         isPlaying = true;
+        playingSong = song;
+        EventBus.getDefault().post(new SimpleNotifier(PlayerFragment.class.getSimpleName()));
+
         zTotalTime = MusicPlayer.getInstance().getDuration();
-        cuteSeekBar.setMax((int) zTotalTime);
-        cuteSeekBar.setProgress(0);
+        remainTime = zTotalTime - MusicPlayer.getInstance().getProgress();
+
+        cuteSeekBar.setMax(zTotalTime);
+        cuteSeekBar.setProgress(zTotalTime - remainTime);
+
         cuteSongName.setText(song.getName());
         cuteSongArtist.setText(song.getArtist());
-        cuteImageButtonGo.setImageResource(R.drawable.ic_pause_white_48px);
         ImageLoader.getInstance().displayImage(song.getImageLink(), cuteSongImage);
-        cuteSongImage.startAnimation(rotateAnimation);
+        cuteSongImage.startAnimation(Logistic.getRotateAnimation());
 
+        cuteImageButtonGo.setImageResource(R.drawable.ic_pause_white_48px);
         countDownTimerCancel(zTotalTime);
 
         cutePlayer.setVisibility(View.VISIBLE);
@@ -232,42 +224,105 @@ public class MainActivity extends AppCompatActivity {
         } else {
             isPlaying = true;
             cuteImageButtonGo.setImageResource(R.drawable.ic_pause_white_48px);
-            cuteSongImage.startAnimation(rotateAnimation);
+            cuteSongImage.startAnimation(Logistic.getRotateAnimation());
             countDownTimerCancel(remainTime);
         }
     }
 
-    private void nextSong() {
+    public void goNextSong() {
         if (isWaiting) return;
-        prePlay(++indexSong % 50);
+        prePlay(++indexSong % RealmManager.getInstance().getSongs(genre.getGenreID()).size());
+    }
+
+    public void goPreviousSong() {
+        if (isWaiting) return;
+        prePlay((indexSong + RealmManager.getInstance().getSongs(genre.getGenreID()).size() - 1) % RealmManager.getInstance().getSongs(genre.getGenreID()).size());
     }
 
     private void countDownTimerCancel(long millisInFuture) {
         if (countDownTimer != null) countDownTimer.cancel();
+
+        if (isSyncing) return;
         if (millisInFuture == -1) return;
+
         countDownTimer = new CountDownTimer(millisInFuture + 1, 1) {
             @Override
             public void onTick(long millisUntilFinished) {
-                remainTime = millisUntilFinished;
-                cuteSeekBar.setProgress((int) (zTotalTime - remainTime));
+                remainTime = (int) millisUntilFinished;
+                cuteSeekBar.setProgress(zTotalTime - remainTime);
             }
 
             @Override
             public void onFinish() {
-                nextSong();
+                goNextSong();
             }
         }.start();
     }
 
+    @OnClick(R.id.cute_player)
+    public void goPlayer() {
+        if (isSyncing) return;
+        if (isWaiting) return;
+
+        isSyncing = true;
+        countDownTimerCancel(-1);
+
+        getSupportFragmentManager().beginTransaction()
+                .setCustomAnimations(R.anim.go_up_in, R.anim.do_nothing, R.anim.do_nothing, R.anim.go_down_out)
+                .replace(R.id.layout_mommy, new PlayerFragment())
+                .addToBackStack(null).commit();
+    }
+
     private void changeWaiting(boolean waiting) {
         isWaiting = waiting;
-        EventBus.getDefault().post(new WaitingChanger(
-                SongsFragment.class.getSimpleName(), waiting));
+        EventBus.getDefault().post(new WaitingChanger(FavourSongFragment.class.getSimpleName(), waiting));
+        EventBus.getDefault().post(new WaitingChanger(SongFragment.class.getSimpleName(), waiting));
+        EventBus.getDefault().post(new WaitingChanger(PlayerFragment.class.getSimpleName(), waiting));
     }
 
     @Override
     protected void onStop() {
         super.onStop();
         EventBus.getDefault().unregister(this);
+    }
+
+    /**
+     * PLAYER ================================================================================
+     */
+
+    public void setLayoutDaddy(int visibility) {
+        findViewById(R.id.layout_daddy).setVisibility(visibility);
+    }
+
+    public Song getSong() {
+        return song;
+    }
+
+    public boolean isPlaying() {
+        return isPlaying;
+    }
+
+    public void goContinue() {
+        isSyncing = false;
+
+        zTotalTime = MusicPlayer.getInstance().getDuration();
+        remainTime = zTotalTime - MusicPlayer.getInstance().getProgress();
+
+        cuteSeekBar.setMax(zTotalTime);
+        cuteSeekBar.setProgress(zTotalTime - remainTime);
+
+        cuteSongName.setText(playingSong.getName());
+        cuteSongArtist.setText(playingSong.getArtist());
+        ImageLoader.getInstance().displayImage(playingSong.getImageLink(), cuteSongImage);
+
+        if (isPlaying) {
+            cuteImageButtonGo.setImageResource(R.drawable.ic_pause_white_48px);
+            cuteSongImage.startAnimation(Logistic.getRotateAnimation());
+            countDownTimerCancel(remainTime);
+        } else {
+            cuteImageButtonGo.setImageResource(R.drawable.ic_play_arrow_white_48px);
+            cuteSongImage.clearAnimation();
+        }
+        setLayoutDaddy(View.VISIBLE);
     }
 }

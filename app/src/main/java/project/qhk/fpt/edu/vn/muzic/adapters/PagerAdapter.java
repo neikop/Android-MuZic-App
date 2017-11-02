@@ -6,7 +6,7 @@ import android.support.v4.app.FragmentStatePagerAdapter;
 
 import project.qhk.fpt.edu.vn.muzic.screens.FavourFragment;
 import project.qhk.fpt.edu.vn.muzic.screens.GenresFragment;
-import project.qhk.fpt.edu.vn.muzic.screens.OfficeFragment;
+import project.qhk.fpt.edu.vn.muzic.screens.SearchFragment;
 
 /**
  * Created by WindzLord on 11/28/2016.
@@ -29,7 +29,7 @@ public class PagerAdapter extends FragmentStatePagerAdapter {
             case 1:
                 return new FavourFragment();
             case 2:
-                return new OfficeFragment();
+                return new SearchFragment();
             default:
                 return null;
         }

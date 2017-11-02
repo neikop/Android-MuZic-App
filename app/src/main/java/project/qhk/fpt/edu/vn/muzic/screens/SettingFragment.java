@@ -7,18 +7,22 @@ import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import org.greenrobot.eventbus.EventBus;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import project.qhk.fpt.edu.vn.muzic.Constant;
+import project.qhk.fpt.edu.vn.muzic.Logistic;
 import project.qhk.fpt.edu.vn.muzic.R;
+import project.qhk.fpt.edu.vn.muzic.notifiers.FragmentChanger;
 
 /**
  * A simple {@link Fragment} subclass.
  */
-public class MainActivityFragment extends Fragment {
+public class SettingFragment extends Fragment {
 
     @BindView(R.id.toolbar)
     Toolbar myToolbar;
@@ -30,7 +34,7 @@ public class MainActivityFragment extends Fragment {
     ViewPager myViewPager;
 
 
-    public MainActivityFragment() {
+    public SettingFragment() {
         // Required empty public constructor
     }
 
@@ -39,7 +43,7 @@ public class MainActivityFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_main_activity, container, false);
+        View view = inflater.inflate(R.layout.fragment_setting, container, false);
         settingThingsUp(view);
 
         return view;
@@ -52,12 +56,23 @@ public class MainActivityFragment extends Fragment {
     }
 
     private void goTabLayout() {
-        myToolbar.setTitle(Constant.TITLE);
+        myToolbar.setTitle(Logistic.TITLE);
         myToolbar.inflateMenu(R.menu.menu_main);
 
-        myTabLayout.addTab(myTabLayout.newTab().setText(Constant.GENRES));
-        myTabLayout.addTab(myTabLayout.newTab().setText(Constant.PLAYLIST));
-        myTabLayout.addTab(myTabLayout.newTab().setText(Constant.OFFLINE));
+        myToolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                System.out.println("onMenuItemClick");
+                EventBus.getDefault().post(new FragmentChanger(
+                        SettingFragment.class.getSimpleName(), new LoginFragment(), true));
+
+                return true;
+            }
+        });
+
+        myTabLayout.addTab(myTabLayout.newTab().setText(Logistic.GENRES));
+        myTabLayout.addTab(myTabLayout.newTab().setText(Logistic.PLAYLIST));
+        myTabLayout.addTab(myTabLayout.newTab().setText(Logistic.SEARCH));
 
         myTabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
 

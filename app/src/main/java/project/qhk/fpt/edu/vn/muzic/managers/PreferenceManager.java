@@ -10,14 +10,14 @@ import android.content.SharedPreferences;
 public class PreferenceManager {
 
     private static final String KEY = "PreferenceManager";
-
+    private static final String USERNAME = "USERNAME";
+    private static final String TOKEN = "TOKEN";
+    private static PreferenceManager instance;
     private SharedPreferences sharedPreferences;
 
     public PreferenceManager(Context context) {
         sharedPreferences = context.getSharedPreferences(KEY, Context.MODE_PRIVATE);
     }
-
-    private static PreferenceManager instance;
 
     public static PreferenceManager getInstance() {
         return instance;
@@ -25,6 +25,32 @@ public class PreferenceManager {
 
     public static void init(Context context) {
         instance = new PreferenceManager(context);
+    }
+
+    private void putUsername(String username) {
+        sharedPreferences.edit().putString(USERNAME, username).apply();
+    }
+
+    public String getUsername() {
+        return sharedPreferences.getString(USERNAME, "");
+    }
+
+    private void putToken(String token) {
+        sharedPreferences.edit().putString(TOKEN, token).apply();
+    }
+
+    public String getToken() {
+        return sharedPreferences.getString(TOKEN, "");
+    }
+
+    public void login(String username, String token) {
+        putUsername(username);
+        putToken(token);
+    }
+
+    public void logout() {
+        putUsername("");
+        putToken("");
     }
 
     public String[] getGenres() {

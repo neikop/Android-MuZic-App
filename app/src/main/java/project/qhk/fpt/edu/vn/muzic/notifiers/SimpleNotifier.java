@@ -1,14 +1,14 @@
-package project.qhk.fpt.edu.vn.muzic.objects;
+package project.qhk.fpt.edu.vn.muzic.notifiers;
 
 /**
  * Created by WindzLord on 10/29/2017.
  */
 
-public class Notifier {
+public class SimpleNotifier {
 
     private String target;
 
-    public Notifier(String target) {
+    public SimpleNotifier(String target) {
         this.target = target;
     }
 
