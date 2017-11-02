@@ -12,6 +12,8 @@ public class PreferenceManager {
     private static final String KEY = "PreferenceManager";
     private static final String USERNAME = "USERNAME";
     private static final String TOKEN = "TOKEN";
+    private static final String EMAIL = "EMAIL";
+    private static final String FULLNAME = "FULLNAME";
     private static PreferenceManager instance;
     private SharedPreferences sharedPreferences;
 
@@ -39,18 +41,38 @@ public class PreferenceManager {
         sharedPreferences.edit().putString(TOKEN, token).apply();
     }
 
+    private void putFullname(String fullname) {
+        sharedPreferences.edit().putString(FULLNAME, fullname).apply();
+    }
+
+    public String getFullname() {
+        return sharedPreferences.getString(FULLNAME, "");
+    }
+
+    private void putEMail(String email) {
+        sharedPreferences.edit().putString(EMAIL, email).apply();
+    }
+
+    public String getEmail() {
+        return sharedPreferences.getString(EMAIL, "");
+    }
+
     public String getToken() {
         return sharedPreferences.getString(TOKEN, "");
     }
 
-    public void login(String username, String token) {
+    public void login(String username, String token, String name, String email) {
         putUsername(username);
         putToken(token);
+        putEMail(email);
+        putFullname(name);
     }
 
     public void logout() {
         putUsername("");
         putToken("");
+        putFullname("");
+        putEMail("");
     }
 
     public String[] getGenres() {

@@ -6,6 +6,8 @@ import android.os.CountDownTimer;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -22,6 +24,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import project.qhk.fpt.edu.vn.muzic.managers.MusicPlayer;
+import project.qhk.fpt.edu.vn.muzic.managers.PreferenceManager;
 import project.qhk.fpt.edu.vn.muzic.managers.RealmManager;
 import project.qhk.fpt.edu.vn.muzic.models.Genre;
 import project.qhk.fpt.edu.vn.muzic.models.Song;
@@ -30,6 +33,7 @@ import project.qhk.fpt.edu.vn.muzic.notifiers.FragmentChanger;
 import project.qhk.fpt.edu.vn.muzic.notifiers.SimpleNotifier;
 import project.qhk.fpt.edu.vn.muzic.notifiers.SongChanger;
 import project.qhk.fpt.edu.vn.muzic.notifiers.WaitingChanger;
+import project.qhk.fpt.edu.vn.muzic.screens.AccountDetailFragment;
 import project.qhk.fpt.edu.vn.muzic.screens.FavourFragment;
 import project.qhk.fpt.edu.vn.muzic.screens.FavourSongFragment;
 import project.qhk.fpt.edu.vn.muzic.screens.GenresFragment;
@@ -64,6 +68,8 @@ public class MainActivity extends AppCompatActivity {
     @BindView(R.id.cute_image_button_go)
     ImageView cuteImageButtonGo;
     Song playingSong;
+
+    private MenuItem itemHello;
     /**
      * PLAYER ================================================================================
      */
@@ -120,10 +126,12 @@ public class MainActivity extends AppCompatActivity {
     @Subscribe
     public void onFragmentEvent(FragmentChanger changer) {
         if (changer.getSource().equals(SettingFragment.class.getSimpleName())) {
-            getSupportFragmentManager().beginTransaction()
-                    .setCustomAnimations(R.anim.go_down_in, R.anim.do_nothing, R.anim.do_nothing, R.anim.go_down_out)
-                    .replace(R.id.layout_mommy, new LoginFragment())
-                    .addToBackStack(null).commit();
+
+        getSupportFragmentManager().beginTransaction()
+                .setCustomAnimations(R.anim.go_down_in, R.anim.do_nothing, R.anim.do_nothing, R.anim.go_down_out)
+                .replace(R.id.layout_mommy, new LoginFragment())
+                .addToBackStack(null).commit();
+
         } else openFragment(changer.getSource(), changer.getFragment(), changer.isAddToBackStack());
     }
 
@@ -136,11 +144,7 @@ public class MainActivity extends AppCompatActivity {
                     R.anim.go_right_in, R.anim.go_right_out);
         }
 
-        if (source.equals(LoginFragment.class.getSimpleName())){
-            fragmentTransaction.replace(R.id.login_fragment, fragment);
-        } else {
-            fragmentTransaction.replace(R.id.layout_main, fragment);
-        }
+        fragmentTransaction.replace(R.id.layout_main, fragment);
 
         if (addToBackStack) fragmentTransaction.addToBackStack(null);
         fragmentTransaction.commit();
@@ -329,5 +333,19 @@ public class MainActivity extends AppCompatActivity {
             cuteSongImage.clearAnimation();
         }
         setLayoutDaddy(View.VISIBLE);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        itemHello = menu.getItem(R.id.action_search);
+        String userName = PreferenceManager.getInstance().getUsername();
+        if (!userName.isEmpty()) {
+            System.out.println("Live");
+            itemHello.setIcon(R.drawable.avatar);
+        } else {
+            itemHello.setIcon(R.drawable.ic_perm_identity_white_48px);
+        }
+        return super.onCreateOptionsMenu(menu);
     }
 }

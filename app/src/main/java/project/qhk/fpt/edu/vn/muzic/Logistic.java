@@ -41,4 +41,8 @@ public class Logistic {
         return rotateAnimation;
     }
 
+    public static boolean stringIsBlank(String input){
+        return input.isEmpty() || input == null;
+    }
+
 }

@@ -49,6 +49,17 @@ public class LoginResult {
 
         @SerializedName("email")
         private String email;
+
+        public String getName() {
+            return name;
+        }
+
+        public String getEmail() {
+            return email;
+        }
     }
 
+    public User getUser() {
+        return user;
+    }
 }

@@ -1,4 +1,4 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -7,7 +7,7 @@
     tools:context="project.qhk.fpt.edu.vn.muzic.screens.LoginFragment">
 
     <LinearLayout
-        android:id="@+id/login_fragment"
+        android:id="@+id/signin_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
@@ -47,28 +47,29 @@
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
-                android:layout_weight="10"
-                android:padding="10dp">
+                android:layout_weight="10">
                 <EditText
                     android:id="@+id/login_username"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_marginLeft="10dp"
                     android:layout_marginRight="10dp"
+                    android:hint="Username"
                     android:textColor="@color/colorWhite" />
             </RelativeLayout>
 
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
-                android:layout_weight="10"
-                android:padding="10dp">
+                android:layout_weight="10">
                 <EditText
                     android:id="@+id/login_password"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_marginLeft="10dp"
                     android:layout_marginRight="10dp"
+                    android:inputType="textPassword"
+                    android:hint="Password"
                     android:textColor="@color/colorWhite" />
             </RelativeLayout>
 
@@ -114,14 +115,155 @@
                 android:layout_weight="80"
                 android:layout_height="0dp">
 
-                <ProgressBar
-                    android:id="@+id/login_bar_waiting"
-                    android:layout_width="80dp"
-                    android:layout_height="80dp"
-                    android:layout_centerInParent="true" />
+
 
             </RelativeLayout>
         </LinearLayout>
     </LinearLayout>
 
-</LinearLayout>
+    <LinearLayout
+        android:id="@+id/register_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="invisible"
+        android:orientation="vertical">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="70dp">
+
+            <RelativeLayout
+                android:layout_width="50dp"
+                android:layout_height="70dp"
+                android:id="@+id/register_button_back">
+
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_centerInParent="true"
+                    android:src="@drawable/ic_arrow_back_white_48px" />
+            </RelativeLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:text="Register"
+                android:textColor="@color/colorWhite"
+                android:layout_toRightOf="@id/register_button_back"/>
+        </RelativeLayout>
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:padding="10dp">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="10">
+                <EditText
+                    android:id="@+id/register_fullname"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"
+                    android:hint="Fullname"
+                    android:textColor="@color/colorWhite" />
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="10">
+                <EditText
+                    android:id="@+id/register_email"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"
+                    android:hint="Email"
+                    android:textColor="@color/colorWhite" />
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="10">
+                <EditText
+                    android:id="@+id/register_username"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"
+                    android:hint="Username"
+                    android:textColor="@color/colorWhite" />
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="10">
+                <EditText
+                    android:id="@+id/register_password"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"
+                    android:inputType="textPassword"
+                    android:hint="Password"
+                    android:textColor="@color/colorWhite" />
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="10">
+                <EditText
+                    android:id="@+id/register_retype_password"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"
+                    android:inputType="textPassword"
+                    android:hint="Retype Password"
+                    android:textColor="@color/colorWhite" />
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_weight="10"
+                android:layout_height="0dp"
+                android:orientation="horizontal">
+                <Button
+                    android:id="@+id/create_account_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:text="Create Account" />
+
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_weight="60"
+                android:layout_height="0dp">
+
+            </RelativeLayout>
+        </LinearLayout>
+    </LinearLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <ProgressBar
+            android:id="@+id/login_bar_waiting"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_centerInParent="true" />
+    </RelativeLayout>
+</RelativeLayout>
