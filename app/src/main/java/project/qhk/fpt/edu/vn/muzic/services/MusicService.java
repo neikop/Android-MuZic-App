@@ -3,6 +3,8 @@ package project.qhk.fpt.edu.vn.muzic.services;
 import okhttp3.RequestBody;
 import project.qhk.fpt.edu.vn.muzic.models.api_models.LoginResult;
 import project.qhk.fpt.edu.vn.muzic.models.api_models.MediaFeed;
+import project.qhk.fpt.edu.vn.muzic.models.api_models.PlaylistResult;
+import project.qhk.fpt.edu.vn.muzic.models.api_models.SearchResult;
 import project.qhk.fpt.edu.vn.muzic.models.api_models.SongMp3;
 import retrofit2.Call;
 import retrofit2.http.Body;
@@ -26,6 +28,11 @@ public interface MusicService {
     @POST("/api/user/login")
     Call<LoginResult> getLoginResult(@Body RequestBody account);
 
-    @GET("/api/playlist/getPlaylistByUser")
-    Call<LoginResult> getPlaylistByUser(@Body RequestBody token);
+    @POST("/api/playlist/getPlaylistByUser")
+    Call<PlaylistResult> getPlaylistByUser(@Body RequestBody token);
+
+    @GET("/search/tracks?client_id=MbFtrpTYuwoPYLnPGQIFPahc1TNeVFnu&limit=10&offset=0")
+    Call<SearchResult> getSearchResult(@Query("q") String query);
+
+
 }

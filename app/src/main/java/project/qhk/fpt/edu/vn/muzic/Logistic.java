@@ -21,6 +21,8 @@ public class Logistic {
 
     public final static String GET_MP3_API = "http://103.1.209.134";
 
+    public final static String SEARCH__API = "https://api-v2.soundcloud.com";
+
     public static String toTime(long time) {
         time = time / 1000;
         long min = time / 60;
