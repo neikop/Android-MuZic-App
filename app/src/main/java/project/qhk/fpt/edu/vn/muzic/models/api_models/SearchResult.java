@@ -4,13 +4,16 @@ import com.google.gson.annotations.SerializedName;
 
 import java.util.ArrayList;
 
+import project.qhk.fpt.edu.vn.muzic.Logistic;
+
 /**
  * Created by QuangTM on 02/11/2017.
  */
 
 public class SearchResult {
+
     @SerializedName("collection")
-    private ArrayList results;
+    private ArrayList<SearchSong> results;
 
     @SerializedName("total_results")
     private String totalResult;
@@ -18,23 +21,31 @@ public class SearchResult {
     @SerializedName("next_href")
     private String nextHref;
 
+    public ArrayList<SearchSong> getResults() {
+        return results;
+    }
 
     public class SearchSong {
-
-        @SerializedName("id")
-        private String id;
 
         @SerializedName("title")
         private String title;
 
-        @SerializedName("permalink")
-        private String permalink;
+        @SerializedName("artwork_url")
+        private String imageLink;
 
         @SerializedName("uri")
         private String url;
 
+        public String getTitle() {
+            return title;
+        }
+
+        public String getImageLink() {
+            return imageLink;
+        }
+
         public String getStream() {
-            return this.url + "/stream?client_id=MbFtrpTYuwoPYLnPGQIFPahc1TNeVFnu";
+            return url + "/stream?client_id=" + Logistic.CLIENT_ID;
         }
     }
 }

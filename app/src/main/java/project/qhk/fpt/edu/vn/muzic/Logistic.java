@@ -1,8 +1,14 @@
 package project.qhk.fpt.edu.vn.muzic;
 
+import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.view.animation.Animation;
 import android.view.animation.LinearInterpolator;
 import android.view.animation.RotateAnimation;
+import android.widget.ImageView;
+
+import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * Created by WindzLord on 10/28/2017.
@@ -23,6 +29,8 @@ public class Logistic {
 
     public final static String SEARCH__API = "https://api-v2.soundcloud.com";
 
+    public final static String CLIENT_ID = "MbFtrpTYuwoPYLnPGQIFPahc1TNeVFnu";
+
     public static String toTime(long time) {
         time = time / 1000;
         long min = time / 60;
@@ -41,8 +49,15 @@ public class Logistic {
         return rotateAnimation;
     }
 
-    public static boolean stringIsBlank(String input){
-        return input.isEmpty() || input == null;
+    public static void setImagePicture(Context context, ImageView imageView, String name) {
+        try {
+            InputStream stream = context.getAssets().open(name);
+            Drawable drawable = Drawable.createFromStream(stream, null);
+            imageView.setImageDrawable(drawable);
+            stream.close();
+        } catch (IOException ex) {
+
+        }
     }
 
 }

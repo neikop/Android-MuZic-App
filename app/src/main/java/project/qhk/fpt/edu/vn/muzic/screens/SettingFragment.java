@@ -18,6 +18,7 @@ import butterknife.ButterKnife;
 import project.qhk.fpt.edu.vn.muzic.Logistic;
 import project.qhk.fpt.edu.vn.muzic.R;
 import project.qhk.fpt.edu.vn.muzic.notifiers.FragmentChanger;
+import project.qhk.fpt.edu.vn.muzic.notifiers.SimpleNotifier;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -86,6 +87,9 @@ public class SettingFragment extends Fragment {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
                 myViewPager.setCurrentItem(tab.getPosition());
+                if (tab.getPosition() == 1) {
+                    EventBus.getDefault().post(new SimpleNotifier(FavourFragment.class.getSimpleName()));
+                }
             }
 
             @Override

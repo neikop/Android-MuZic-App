@@ -152,7 +152,9 @@ public class PlayerFragment extends Fragment {
 
         playerSongName.setText(song.getName());
         playerSongArtist.setText(song.getArtist());
-        ImageLoader.getInstance().displayImage(song.getImagePicture(), playerSongImage);
+        if (song.getImagePicture() != null)
+            ImageLoader.getInstance().displayImage(song.getImagePicture(), playerSongImage);
+        else playerSongImage.setImageResource(R.drawable.image_player_demo);
 
         if (isPlaying) {
             playerImageButtonGo.setImageResource(R.drawable.ic_pause_white_48px);

@@ -10,7 +10,6 @@ import project.qhk.fpt.edu.vn.muzic.models.api_models.SongMp3;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
-import retrofit2.http.Headers;
 import retrofit2.http.POST;
 import retrofit2.http.PUT;
 import retrofit2.http.Path;
@@ -34,8 +33,8 @@ public interface MusicService {
     @POST("/api/playlist/getPlaylistByUser")
     Call<PlaylistResult> getPlaylistByUser(@Body RequestBody token);
 
-    @GET("/search/tracks?client_id=MbFtrpTYuwoPYLnPGQIFPahc1TNeVFnu&limit=10&offset=0")
-    Call<SearchResult> getSearchResult(@Query("q") String query);
+    @GET("/search/tracks")
+    Call<SearchResult> getSearchResult(@Query("client_id") String clientId, @Query("limit") int limit, @Query("q") String query);
 
     @POST("/api/user/register")
     Call<Result> getRegisterResult(@Body RequestBody account);

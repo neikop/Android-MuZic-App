@@ -2,6 +2,7 @@ package project.qhk.fpt.edu.vn.muzic.models;
 
 import io.realm.RealmObject;
 import project.qhk.fpt.edu.vn.muzic.models.api_models.MediaFeed;
+import project.qhk.fpt.edu.vn.muzic.models.api_models.SearchResult;
 
 /**
  * Created by WindzLord on 12/1/2016.
@@ -9,13 +10,26 @@ import project.qhk.fpt.edu.vn.muzic.models.api_models.MediaFeed;
 
 public class Song extends RealmObject {
 
-    public static String GENRE_ID = "genreID";
+    public final static String GENRE_ID = "genreID";
+    public final static String FIELD_ALIVE = "alive";
 
     private String genreID;
     private String name;
     private String artist;
     private String imageLink;
     private String imagePicture;
+    private String stream;
+    private boolean alive = true;
+
+    public Song() {
+    }
+
+    public Song(SearchResult.SearchSong searchSong) {
+        this.name = searchSong.getTitle();
+        this.artist = "";
+        this.imageLink = searchSong.getImageLink();
+        this.stream = searchSong.getStream();
+    }
 
     public static Song create(String genreID, MediaFeed.Feed.Entry entry) {
         Song song = new Song();
@@ -33,11 +47,12 @@ public class Song extends RealmObject {
         song.name = entry.getName();
         song.artist = entry.getArtist();
         song.imageLink = entry.getImageLink();
+        song.stream = entry.getStream();
         return song;
     }
 
-    public String getGenreID() {
-        return genreID;
+    public void setGenreID(String genreID) {
+        this.genreID = genreID;
     }
 
     public String getName() {
@@ -58,5 +73,13 @@ public class Song extends RealmObject {
 
     public void setImagePicture(String imagePicture) {
         this.imagePicture = imagePicture;
+    }
+
+    public String getStream() {
+        return stream;
+    }
+
+    public void goDie() {
+        alive = false;
     }
 }

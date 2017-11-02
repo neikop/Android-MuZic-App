@@ -24,8 +24,9 @@
 
         <TextView
             android:id="@+id/text_song_name"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginRight="20dp"
             android:layout_toRightOf="@id/image_song_small"
             android:text="Name"
             android:textColor="@color/colorWhite"
@@ -34,9 +35,10 @@
 
         <TextView
             android:id="@+id/text_song_artist"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/text_song_name"
+            android:layout_marginRight="20dp"
             android:layout_toRightOf="@id/image_song_small"
             android:text="Artist"
             android:textColor="@color/colorWhiteLight"
