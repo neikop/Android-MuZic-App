@@ -136,7 +136,12 @@ public class MainActivity extends AppCompatActivity {
                     R.anim.go_right_in, R.anim.go_right_out);
         }
 
-        fragmentTransaction.replace(R.id.layout_main, fragment);
+        if (source.equals(LoginFragment.class.getSimpleName())){
+            fragmentTransaction.replace(R.id.login_fragment, fragment);
+        } else {
+            fragmentTransaction.replace(R.id.layout_main, fragment);
+        }
+
         if (addToBackStack) fragmentTransaction.addToBackStack(null);
         fragmentTransaction.commit();
     }
