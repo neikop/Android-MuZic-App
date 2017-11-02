@@ -19,7 +19,7 @@ import project.qhk.fpt.edu.vn.muzic.managers.RealmManager;
 import project.qhk.fpt.edu.vn.muzic.models.Genre;
 import project.qhk.fpt.edu.vn.muzic.models.Song;
 import project.qhk.fpt.edu.vn.muzic.models.api_models.MediaFeed;
-import project.qhk.fpt.edu.vn.muzic.objects.UpdateNotifier;
+import project.qhk.fpt.edu.vn.muzic.notifiers.UpdateNotifier;
 import project.qhk.fpt.edu.vn.muzic.screens.SongsFragment;
 import project.qhk.fpt.edu.vn.muzic.services.MusicService;
 import retrofit2.Call;
@@ -78,7 +78,7 @@ public class MainApplication extends Application {
         RealmManager.getInstance().clearSong();
 
         Retrofit mediaRetrofit = new Retrofit.Builder()
-                .baseUrl(Constant.TOP_SONG_API)
+                .baseUrl(Logistic.TOP_SONG_API)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
         MusicService musicService = mediaRetrofit.create(MusicService.class);

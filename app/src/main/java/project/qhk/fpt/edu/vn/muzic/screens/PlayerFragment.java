@@ -20,14 +20,13 @@ import org.greenrobot.eventbus.Subscribe;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import project.qhk.fpt.edu.vn.muzic.Constant;
+import project.qhk.fpt.edu.vn.muzic.Logistic;
 import project.qhk.fpt.edu.vn.muzic.MainActivity;
 import project.qhk.fpt.edu.vn.muzic.R;
 import project.qhk.fpt.edu.vn.muzic.managers.MusicPlayer;
-import project.qhk.fpt.edu.vn.muzic.models.Genre;
 import project.qhk.fpt.edu.vn.muzic.models.Song;
-import project.qhk.fpt.edu.vn.muzic.objects.PlayerNotifier;
-import project.qhk.fpt.edu.vn.muzic.objects.WaitingChanger;
+import project.qhk.fpt.edu.vn.muzic.notifiers.SimpleNotifier;
+import project.qhk.fpt.edu.vn.muzic.notifiers.WaitingChanger;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -62,7 +61,6 @@ public class PlayerFragment extends Fragment {
 
     private Song song;
     private boolean isPlaying;
-    private boolean isWaiting;
 
     private CountDownTimer countDownTimer;
     private int remainTime;
@@ -90,7 +88,7 @@ public class PlayerFragment extends Fragment {
         playerSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean byUser) {
-                playerTimePassed.setText(Constant.toTime(progress));
+                playerTimePassed.setText(Logistic.toTime(progress));
             }
 
             @Override
@@ -110,7 +108,10 @@ public class PlayerFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        getContent();
+        activity = (MainActivity) getActivity();
+        waitingBar.setVisibility(View.INVISIBLE);
+        goContent(new SimpleNotifier(this.getClass().getSimpleName()));
+
         new CountDownTimer(500, 100) {
             @Override
             public void onTick(long millisUntilFinished) {
@@ -119,7 +120,7 @@ public class PlayerFragment extends Fragment {
 
             @Override
             public void onFinish() {
-                activity.getLayoutDaddy().setVisibility(View.INVISIBLE);
+                activity.setLayoutDaddy(View.INVISIBLE);
             }
         }.start();
     }
@@ -127,34 +128,35 @@ public class PlayerFragment extends Fragment {
     @Override
     public void onPause() {
         super.onPause();
-        activity.getLayoutDaddy().setVisibility(View.VISIBLE);
+        countDownTimerCancel(-1);
+        activity.goContinue();
     }
 
-    private void getContent() {
-        activity = (MainActivity) getActivity();
+    @Subscribe
+    public void goContent(SimpleNotifier event) {
+        if (!this.getClass().getSimpleName().equals(event.getTarget())) return;
+
         song = activity.getSong();
         isPlaying = activity.isPlaying();
 
         zTotalTime = MusicPlayer.getInstance().getDuration();
         remainTime = zTotalTime - MusicPlayer.getInstance().getProgress();
 
-        playerTimeTotal.setText(Constant.toTime(zTotalTime));
-        playerTimePassed.setText(Constant.toTime(zTotalTime - remainTime));
-
         playerSeekBar.setMax(zTotalTime);
         playerSeekBar.setProgress(zTotalTime - remainTime);
+
+        playerTimeTotal.setText(Logistic.toTime(zTotalTime));
+        playerTimePassed.setText(Logistic.toTime(zTotalTime - remainTime));
 
         playerSongName.setText(song.getName());
         playerSongArtist.setText(song.getArtist());
         ImageLoader.getInstance().displayImage(song.getImagePicture(), playerSongImage);
-        waitingBar.setVisibility(View.INVISIBLE);
 
         if (isPlaying) {
             playerImageButtonGo.setImageResource(R.drawable.ic_pause_white_48px);
             countDownTimerCancel(remainTime);
         } else {
             playerImageButtonGo.setImageResource(R.drawable.ic_play_arrow_white_48px);
-            countDownTimerCancel(-1);
         }
     }
 
@@ -173,32 +175,6 @@ public class PlayerFragment extends Fragment {
                 activity.goNextSong();
             }
         }.start();
-    }
-
-    @Subscribe
-    public void onSubscribe(PlayerNotifier event) {
-        song = activity.getSong();
-        isPlaying = activity.isPlaying();
-
-        zTotalTime = MusicPlayer.getInstance().getDuration();
-        remainTime = zTotalTime - MusicPlayer.getInstance().getProgress();
-
-        playerSeekBar.setMax(zTotalTime);
-        playerSeekBar.setProgress(zTotalTime - remainTime);
-
-        playerTimeTotal.setText(Constant.toTime(zTotalTime));
-        playerTimePassed.setText(Constant.toTime(zTotalTime - remainTime));
-
-        playerSongName.setText(song.getName());
-        playerSongArtist.setText(song.getArtist());
-        ImageLoader.getInstance().displayImage(song.getImagePicture(), playerSongImage);
-
-        if (isPlaying) {
-            playerImageButtonGo.setImageResource(R.drawable.ic_pause_white_48px);
-            countDownTimerCancel(remainTime);
-        } else {
-            playerImageButtonGo.setImageResource(R.drawable.ic_play_arrow_white_48px);
-        }
     }
 
     @OnClick(R.id.player_button_go)
@@ -229,26 +205,25 @@ public class PlayerFragment extends Fragment {
             remainTime = zTotalTime - MusicPlayer.getInstance().getProgress();
 
             playerSeekBar.setProgress(zTotalTime - remainTime);
-            playerTimePassed.setText(Constant.toTime(zTotalTime - remainTime));
+            playerTimePassed.setText(Logistic.toTime(zTotalTime - remainTime));
+
             if (isPlaying)
                 countDownTimerCancel(remainTime);
             else countDownTimerCancel(-1);
         }
     }
 
-    @OnClick(R.id.player_button_back)
-    public void onBackPressed() {
-        countDownTimerCancel(-1);
-        activity.goContinue();
-        getActivity().onBackPressed();
-    }
-
     @Subscribe
     public void changeWaiting(WaitingChanger event) {
         if (!this.getClass().getSimpleName().equals(event.getTarget())) return;
 
-        isWaiting = event.isWaiting();
+        boolean isWaiting = event.isWaiting();
         waitingBar.setVisibility(isWaiting ? View.VISIBLE : View.INVISIBLE);
+    }
+
+    @OnClick(R.id.player_button_back)
+    public void onBackPressed() {
+        getActivity().onBackPressed();
     }
 
     @Override

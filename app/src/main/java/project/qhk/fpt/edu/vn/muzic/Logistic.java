@@ -1,10 +1,14 @@
 package project.qhk.fpt.edu.vn.muzic;
 
+import android.view.animation.Animation;
+import android.view.animation.LinearInterpolator;
+import android.view.animation.RotateAnimation;
+
 /**
  * Created by WindzLord on 10/28/2017.
  */
 
-public class Constant {
+public class Logistic {
 
     public final static String TITLE = "Explore";
     public final static String GENRES = "GENRES";
@@ -22,5 +26,16 @@ public class Constant {
         long sec = time - min * 60;
         return "" + (min < 10 ? ("0" + min) : ("" + min))
                 + ":" + (sec < 10 ? ("0" + sec) : ("" + sec));
+    }
+
+    public static RotateAnimation getRotateAnimation() {
+        RotateAnimation rotateAnimation = new RotateAnimation(0, 360,
+                Animation.RELATIVE_TO_SELF, 0.5f,
+                Animation.RELATIVE_TO_SELF, 0.5f);
+        rotateAnimation.setInterpolator(new LinearInterpolator());
+        rotateAnimation.setDuration(3000);
+        rotateAnimation.setFillAfter(true);
+        rotateAnimation.setRepeatCount(Animation.INFINITE);
+        return rotateAnimation;
     }
 }

@@ -17,7 +17,7 @@ import butterknife.ButterKnife;
 import project.qhk.fpt.edu.vn.muzic.R;
 import project.qhk.fpt.edu.vn.muzic.adapters.GenreAdapter;
 import project.qhk.fpt.edu.vn.muzic.adapters.listeners.RecyclerViewListener;
-import project.qhk.fpt.edu.vn.muzic.objects.FragmentChanger;
+import project.qhk.fpt.edu.vn.muzic.notifiers.FragmentChanger;
 
 /**
  * A simple {@link Fragment} subclass.

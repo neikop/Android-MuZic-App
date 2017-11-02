@@ -24,21 +24,18 @@ import java.io.InputStream;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import project.qhk.fpt.edu.vn.muzic.Constant;
+import project.qhk.fpt.edu.vn.muzic.Logistic;
 import project.qhk.fpt.edu.vn.muzic.MainActivity;
-import project.qhk.fpt.edu.vn.muzic.MainApplication;
 import project.qhk.fpt.edu.vn.muzic.R;
 import project.qhk.fpt.edu.vn.muzic.adapters.SongAdapter;
 import project.qhk.fpt.edu.vn.muzic.adapters.listeners.RecyclerViewListener;
-import project.qhk.fpt.edu.vn.muzic.managers.NetworkManager;
 import project.qhk.fpt.edu.vn.muzic.managers.RealmManager;
 import project.qhk.fpt.edu.vn.muzic.models.Genre;
 import project.qhk.fpt.edu.vn.muzic.models.Song;
 import project.qhk.fpt.edu.vn.muzic.models.api_models.MediaFeed;
-import project.qhk.fpt.edu.vn.muzic.objects.SimpleNotifier;
-import project.qhk.fpt.edu.vn.muzic.objects.SongChanger;
-import project.qhk.fpt.edu.vn.muzic.objects.UpdateNotifier;
-import project.qhk.fpt.edu.vn.muzic.objects.WaitingChanger;
+import project.qhk.fpt.edu.vn.muzic.notifiers.SongChanger;
+import project.qhk.fpt.edu.vn.muzic.notifiers.UpdateNotifier;
+import project.qhk.fpt.edu.vn.muzic.notifiers.WaitingChanger;
 import project.qhk.fpt.edu.vn.muzic.services.MusicService;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -161,7 +158,7 @@ public class SongsFragment extends Fragment {
     @Subscribe
     public void goUpdate(UpdateNotifier event) {
         if (!this.getClass().getSimpleName().equals(event.getTarget())) return;
-        if (!genre.getNumber().equals(event.getNumber())) return;
+        if (!genre.getNumber().equals(event.getGenreID())) return;
 
         waitingBar.setVisibility(View.INVISIBLE);
         if (!event.isSuccess()) {
@@ -178,7 +175,7 @@ public class SongsFragment extends Fragment {
         RealmManager.getInstance().clearSong();
 
         Retrofit mediaRetrofit = new Retrofit.Builder()
-                .baseUrl(Constant.TOP_SONG_API)
+                .baseUrl(Logistic.TOP_SONG_API)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
         MusicService musicService = mediaRetrofit.create(MusicService.class);

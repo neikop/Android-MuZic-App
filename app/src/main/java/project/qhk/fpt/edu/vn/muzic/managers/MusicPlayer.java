@@ -16,7 +16,7 @@ import com.google.android.exoplayer.util.Util;
 import org.greenrobot.eventbus.EventBus;
 
 import project.qhk.fpt.edu.vn.muzic.MainActivity;
-import project.qhk.fpt.edu.vn.muzic.objects.SimpleNotifier;
+import project.qhk.fpt.edu.vn.muzic.notifiers.SimpleNotifier;
 
 /**
  * Created by WindzLord on 10/29/2017.
@@ -31,7 +31,7 @@ public class MusicPlayer {
 
     private boolean readyPost;
 
-    private MusicPlayer(Context context) {
+    private MusicPlayer() {
         if (exoPlayer == null) {
             exoPlayer = ExoPlayer.Factory.newInstance(1);
 
@@ -98,7 +98,7 @@ public class MusicPlayer {
     }
 
     public static void init(Context context) {
-        instance = new MusicPlayer(context);
+        instance = new MusicPlayer();
     }
 
 }

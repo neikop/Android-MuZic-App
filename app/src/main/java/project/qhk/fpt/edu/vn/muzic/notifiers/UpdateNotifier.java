@@ -1,4 +1,4 @@
-package project.qhk.fpt.edu.vn.muzic.objects;
+package project.qhk.fpt.edu.vn.muzic.notifiers;
 
 /**
  * Created by WindzLord on 11/1/2017.
@@ -7,12 +7,12 @@ package project.qhk.fpt.edu.vn.muzic.objects;
 public class UpdateNotifier {
 
     private String target;
-    private String number;
+    private String genreID;
     private boolean success;
 
-    public UpdateNotifier(String target, String number, boolean success) {
+    public UpdateNotifier(String target, String genreID, boolean success) {
         this.target = target;
-        this.number = number;
+        this.genreID = genreID;
         this.success = success;
     }
 
@@ -20,8 +20,8 @@ public class UpdateNotifier {
         return target;
     }
 
-    public String getNumber() {
-        return number;
+    public String getGenreID() {
+        return genreID;
     }
 
     public boolean isSuccess() {

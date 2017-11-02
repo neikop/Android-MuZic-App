@@ -7,9 +7,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
-import android.view.animation.Animation;
-import android.view.animation.LinearInterpolator;
-import android.view.animation.RotateAnimation;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -30,11 +27,10 @@ import project.qhk.fpt.edu.vn.muzic.managers.RealmManager;
 import project.qhk.fpt.edu.vn.muzic.models.Genre;
 import project.qhk.fpt.edu.vn.muzic.models.Song;
 import project.qhk.fpt.edu.vn.muzic.models.api_models.SongMp3;
-import project.qhk.fpt.edu.vn.muzic.objects.FragmentChanger;
-import project.qhk.fpt.edu.vn.muzic.objects.PlayerNotifier;
-import project.qhk.fpt.edu.vn.muzic.objects.SimpleNotifier;
-import project.qhk.fpt.edu.vn.muzic.objects.SongChanger;
-import project.qhk.fpt.edu.vn.muzic.objects.WaitingChanger;
+import project.qhk.fpt.edu.vn.muzic.notifiers.FragmentChanger;
+import project.qhk.fpt.edu.vn.muzic.notifiers.SimpleNotifier;
+import project.qhk.fpt.edu.vn.muzic.notifiers.SongChanger;
+import project.qhk.fpt.edu.vn.muzic.notifiers.WaitingChanger;
 import project.qhk.fpt.edu.vn.muzic.screens.GenresFragment;
 import project.qhk.fpt.edu.vn.muzic.screens.MainActivityFragment;
 import project.qhk.fpt.edu.vn.muzic.screens.PlayerFragment;
@@ -47,9 +43,6 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 
 public class MainActivity extends AppCompatActivity {
-
-    @BindView(R.id.layout_daddy)
-    LinearLayout layoutDaddy;
 
     @BindView(R.id.cute_player)
     RelativeLayout cutePlayer;
@@ -88,20 +81,6 @@ public class MainActivity extends AppCompatActivity {
         openFragment(this.getClass().getSimpleName(), new MainActivityFragment(), false);
 
         cutePlayer.setVisibility(View.GONE);
-        getAnimations();
-    }
-
-    private RotateAnimation rotateAnimation;
-
-    private void getAnimations() {
-        rotateAnimation = new RotateAnimation(0, 360,
-                Animation.RELATIVE_TO_SELF, 0.5f,
-                Animation.RELATIVE_TO_SELF, 0.5f);
-        rotateAnimation.setInterpolator(new LinearInterpolator());
-        rotateAnimation.setDuration(3000);
-        rotateAnimation.setFillAfter(true);
-        rotateAnimation.setRepeatCount(Animation.INFINITE);
-
         cuteSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean byUser) {
@@ -174,7 +153,7 @@ public class MainActivity extends AppCompatActivity {
         changeWaiting(true);
 
         Retrofit mediaRetrofit = new Retrofit.Builder()
-                .baseUrl(Constant.GET_MP3_API)
+                .baseUrl(Logistic.GET_MP3_API)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
         MusicService musicService = mediaRetrofit.create(MusicService.class);
@@ -201,13 +180,16 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    Song playingSong;
+
     @Subscribe
     public void goPlay(SimpleNotifier event) {
         if (!this.getClass().getSimpleName().equals(event.getTarget())) return;
         changeWaiting(false);
 
         isPlaying = true;
-        EventBus.getDefault().post(new PlayerNotifier(PlayerFragment.class.getSimpleName()));
+        playingSong = song;
+        EventBus.getDefault().post(new SimpleNotifier(PlayerFragment.class.getSimpleName()));
 
         zTotalTime = MusicPlayer.getInstance().getDuration();
         remainTime = zTotalTime - MusicPlayer.getInstance().getProgress();
@@ -218,7 +200,7 @@ public class MainActivity extends AppCompatActivity {
         cuteSongName.setText(song.getName());
         cuteSongArtist.setText(song.getArtist());
         ImageLoader.getInstance().displayImage(song.getImageLink(), cuteSongImage);
-        cuteSongImage.startAnimation(rotateAnimation);
+        cuteSongImage.startAnimation(Logistic.getRotateAnimation());
 
         cuteImageButtonGo.setImageResource(R.drawable.ic_pause_white_48px);
         countDownTimerCancel(zTotalTime);
@@ -237,19 +219,19 @@ public class MainActivity extends AppCompatActivity {
         } else {
             isPlaying = true;
             cuteImageButtonGo.setImageResource(R.drawable.ic_pause_white_48px);
-            cuteSongImage.startAnimation(rotateAnimation);
+            cuteSongImage.startAnimation(Logistic.getRotateAnimation());
             countDownTimerCancel(remainTime);
         }
     }
 
     public void goNextSong() {
         if (isWaiting) return;
-        prePlay(++indexSong % Constant.MAX_SONG);
+        prePlay(++indexSong % Logistic.MAX_SONG);
     }
 
     public void goPreviousSong() {
         if (isWaiting) return;
-        prePlay((indexSong + Constant.MAX_SONG - 1) % Constant.MAX_SONG);
+        prePlay((indexSong + Logistic.MAX_SONG - 1) % Logistic.MAX_SONG);
     }
 
     private void countDownTimerCancel(long millisInFuture) {
@@ -274,8 +256,8 @@ public class MainActivity extends AppCompatActivity {
 
     @OnClick(R.id.cute_player)
     public void goPlayer() {
-        if (isWaiting) return;
         if (isSyncing) return;
+        if (isWaiting) return;
 
         isSyncing = true;
         countDownTimerCancel(-1);
@@ -302,20 +284,12 @@ public class MainActivity extends AppCompatActivity {
      * PLAYER ================================================================================
      */
 
-    public LinearLayout getLayoutDaddy() {
-        return layoutDaddy;
-    }
-
-    public Genre getGenre() {
-        return genre;
+    public void setLayoutDaddy(int visibility) {
+        findViewById(R.id.layout_daddy).setVisibility(visibility);
     }
 
     public Song getSong() {
         return song;
-    }
-
-    public int getIndexSong() {
-        return indexSong;
     }
 
     public boolean isPlaying() {
@@ -331,17 +305,18 @@ public class MainActivity extends AppCompatActivity {
         cuteSeekBar.setMax(zTotalTime);
         cuteSeekBar.setProgress(zTotalTime - remainTime);
 
-        cuteSongName.setText(song.getName());
-        cuteSongArtist.setText(song.getArtist());
-        ImageLoader.getInstance().displayImage(song.getImageLink(), cuteSongImage);
+        cuteSongName.setText(playingSong.getName());
+        cuteSongArtist.setText(playingSong.getArtist());
+        ImageLoader.getInstance().displayImage(playingSong.getImageLink(), cuteSongImage);
 
         if (isPlaying) {
             cuteImageButtonGo.setImageResource(R.drawable.ic_pause_white_48px);
-            cuteSongImage.startAnimation(rotateAnimation);
+            cuteSongImage.startAnimation(Logistic.getRotateAnimation());
             countDownTimerCancel(remainTime);
         } else {
             cuteImageButtonGo.setImageResource(R.drawable.ic_play_arrow_white_48px);
             cuteSongImage.clearAnimation();
         }
+        setLayoutDaddy(View.VISIBLE);
     }
 }

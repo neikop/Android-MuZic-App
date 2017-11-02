@@ -16,10 +16,10 @@
 #   public *;
 #}
 
-# Uncomment this to preserve the line number information for
+# Uncomment this to preserve the line genreID information for
 # debugging stack traces.
 #-keepattributes SourceFile,LineNumberTable
 
-# If you keep the line number information, uncomment this to
+# If you keep the line genreID information, uncomment this to
 # hide the original target file name.
 #-renamesourcefileattribute SourceFile

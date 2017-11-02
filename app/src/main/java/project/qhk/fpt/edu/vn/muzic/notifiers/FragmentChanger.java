@@ -1,4 +1,4 @@
-package project.qhk.fpt.edu.vn.muzic.objects;
+package project.qhk.fpt.edu.vn.muzic.notifiers;
 
 import android.support.v4.app.Fragment;
 

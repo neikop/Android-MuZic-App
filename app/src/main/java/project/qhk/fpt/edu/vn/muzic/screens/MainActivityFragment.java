@@ -12,7 +12,7 @@ import android.view.ViewGroup;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import project.qhk.fpt.edu.vn.muzic.Constant;
+import project.qhk.fpt.edu.vn.muzic.Logistic;
 import project.qhk.fpt.edu.vn.muzic.R;
 
 /**
@@ -52,12 +52,12 @@ public class MainActivityFragment extends Fragment {
     }
 
     private void goTabLayout() {
-        myToolbar.setTitle(Constant.TITLE);
+        myToolbar.setTitle(Logistic.TITLE);
         myToolbar.inflateMenu(R.menu.menu_main);
 
-        myTabLayout.addTab(myTabLayout.newTab().setText(Constant.GENRES));
-        myTabLayout.addTab(myTabLayout.newTab().setText(Constant.PLAYLIST));
-        myTabLayout.addTab(myTabLayout.newTab().setText(Constant.OFFLINE));
+        myTabLayout.addTab(myTabLayout.newTab().setText(Logistic.GENRES));
+        myTabLayout.addTab(myTabLayout.newTab().setText(Logistic.PLAYLIST));
+        myTabLayout.addTab(myTabLayout.newTab().setText(Logistic.OFFLINE));
 
         myTabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
 

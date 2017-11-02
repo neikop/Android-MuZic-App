@@ -1,4 +1,4 @@
-package project.qhk.fpt.edu.vn.muzic.objects;
+package project.qhk.fpt.edu.vn.muzic.notifiers;
 
 /**
  * Created by WindzLord on 10/29/2017.
