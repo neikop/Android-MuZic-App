@@ -4,12 +4,15 @@ import okhttp3.RequestBody;
 import project.qhk.fpt.edu.vn.muzic.models.api_models.LoginResult;
 import project.qhk.fpt.edu.vn.muzic.models.api_models.MediaFeed;
 import project.qhk.fpt.edu.vn.muzic.models.api_models.PlaylistResult;
+import project.qhk.fpt.edu.vn.muzic.models.api_models.Result;
 import project.qhk.fpt.edu.vn.muzic.models.api_models.SearchResult;
 import project.qhk.fpt.edu.vn.muzic.models.api_models.SongMp3;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
+import retrofit2.http.Headers;
 import retrofit2.http.POST;
+import retrofit2.http.PUT;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
 
@@ -34,5 +37,18 @@ public interface MusicService {
     @GET("/search/tracks?client_id=MbFtrpTYuwoPYLnPGQIFPahc1TNeVFnu&limit=10&offset=0")
     Call<SearchResult> getSearchResult(@Query("q") String query);
 
+    @POST("/api/user/register")
+    Call<Result> getRegisterResult(@Body RequestBody account);
 
+    @POST("/api/playlist/addToPlaylist")
+    Call<Result> addToPlaylist(@Body RequestBody account);
+
+    @PUT("/api/playlist/removeFromPlaylist")
+    Call<Result> removeFromPlaylist(@Body RequestBody account);
+
+    @POST("/api/playlist/add")
+    Call<Result> addPlaylist(@Body RequestBody account);
+
+    @PUT("/api/playlist/remove")
+    Call<Result> removePlaylist(@Body RequestBody account);
 }
