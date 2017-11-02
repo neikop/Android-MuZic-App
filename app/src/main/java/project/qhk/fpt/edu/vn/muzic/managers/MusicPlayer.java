@@ -27,10 +27,10 @@ public class MusicPlayer {
 
     private static final int BUFFER_SEGMENT_SIZE = 64 * 1024;
     private static final int BUFFER_SEGMENT_COUNT = 256;
-
+    private static MusicPlayer instance;
     private ExoPlayer exoPlayer;
-
     private boolean readyPost;
+    private Song song;
 
     private MusicPlayer() {
         if (exoPlayer == null) {
@@ -64,7 +64,13 @@ public class MusicPlayer {
         }
     }
 
-    private Song song;
+    public static MusicPlayer getInstance() {
+        return instance;
+    }
+
+    public static void init(Context context) {
+        instance = new MusicPlayer();
+    }
 
     public void prepare(Context context, String stream, Song song) {
         Uri radioUri = Uri.parse(stream);
@@ -98,16 +104,6 @@ public class MusicPlayer {
 
     public Song getSong() {
         return song;
-    }
-
-    private static MusicPlayer instance;
-
-    public static MusicPlayer getInstance() {
-        return instance;
-    }
-
-    public static void init(Context context) {
-        instance = new MusicPlayer();
     }
 
 }

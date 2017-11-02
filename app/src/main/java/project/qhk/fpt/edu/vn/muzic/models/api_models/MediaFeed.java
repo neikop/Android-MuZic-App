@@ -26,20 +26,18 @@ public class MediaFeed {
 
             @SerializedName("im:name")
             private Name name;
+            @SerializedName("im:artist")
+            private Artist artist;
+            @SerializedName("im:image")
+            private ArrayList<Image> imageList;
 
             public String getName() {
                 return name.label;
             }
 
-            @SerializedName("im:artist")
-            private Artist artist;
-
             public String getArtist() {
                 return artist.label;
             }
-
-            @SerializedName("im:image")
-            private ArrayList<Image> imageList;
 
             public String getImageLink() {
                 return imageList.get(imageList.size() - 1).label;

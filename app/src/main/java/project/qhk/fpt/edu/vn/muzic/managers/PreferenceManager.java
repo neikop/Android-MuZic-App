@@ -12,14 +12,22 @@ public class PreferenceManager {
     private static final String KEY = "PreferenceManager";
     private static final String USERNAME = "USERNAME";
     private static final String TOKEN = "TOKEN";
-
+    private static PreferenceManager instance;
     private SharedPreferences sharedPreferences;
 
     public PreferenceManager(Context context) {
         sharedPreferences = context.getSharedPreferences(KEY, Context.MODE_PRIVATE);
     }
 
-    public void putUsername(String username) {
+    public static PreferenceManager getInstance() {
+        return instance;
+    }
+
+    public static void init(Context context) {
+        instance = new PreferenceManager(context);
+    }
+
+    private void putUsername(String username) {
         sharedPreferences.edit().putString(USERNAME, username).apply();
     }
 
@@ -27,16 +35,12 @@ public class PreferenceManager {
         return sharedPreferences.getString(USERNAME, "");
     }
 
-    public void putToken(String token) {
+    private void putToken(String token) {
         sharedPreferences.edit().putString(TOKEN, token).apply();
     }
 
     public String getToken() {
         return sharedPreferences.getString(TOKEN, "");
-    }
-
-    public boolean isLogin() {
-        return !getToken().isEmpty();
     }
 
     public void login(String username, String token) {
@@ -47,16 +51,6 @@ public class PreferenceManager {
     public void logout() {
         putUsername("");
         putToken("");
-    }
-
-    private static PreferenceManager instance;
-
-    public static PreferenceManager getInstance() {
-        return instance;
-    }
-
-    public static void init(Context context) {
-        instance = new PreferenceManager(context);
     }
 
     public String[] getGenres() {

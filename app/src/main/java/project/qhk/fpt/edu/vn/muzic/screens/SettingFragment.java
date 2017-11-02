@@ -15,19 +15,14 @@ import org.greenrobot.eventbus.EventBus;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.OnClick;
-import io.realm.Realm;
-import io.realm.RealmList;
 import project.qhk.fpt.edu.vn.muzic.Logistic;
 import project.qhk.fpt.edu.vn.muzic.R;
-import project.qhk.fpt.edu.vn.muzic.managers.RealmManager;
-import project.qhk.fpt.edu.vn.muzic.models.Playlist;
 import project.qhk.fpt.edu.vn.muzic.notifiers.FragmentChanger;
 
 /**
  * A simple {@link Fragment} subclass.
  */
-public class MainFragment extends Fragment {
+public class SettingFragment extends Fragment {
 
     @BindView(R.id.toolbar)
     Toolbar myToolbar;
@@ -39,7 +34,7 @@ public class MainFragment extends Fragment {
     ViewPager myViewPager;
 
 
-    public MainFragment() {
+    public SettingFragment() {
         // Required empty public constructor
     }
 
@@ -48,7 +43,7 @@ public class MainFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_main_activity, container, false);
+        View view = inflater.inflate(R.layout.fragment_setting, container, false);
         settingThingsUp(view);
 
         return view;
@@ -69,19 +64,15 @@ public class MainFragment extends Fragment {
             public boolean onMenuItemClick(MenuItem item) {
                 System.out.println("onMenuItemClick");
                 EventBus.getDefault().post(new FragmentChanger(
-                        MainFragment.class.getSimpleName(), new LoginFragment(), true));
+                        SettingFragment.class.getSimpleName(), new LoginFragment(), true));
 
-                RealmManager.getInstance().clearPlaylist();
-                RealmManager.getInstance().addPlaylist(Playlist.create("One"));
-                RealmManager.getInstance().addPlaylist(Playlist.create("Two"));
-                RealmManager.getInstance().addPlaylist(Playlist.create("Three"));
                 return true;
             }
         });
 
         myTabLayout.addTab(myTabLayout.newTab().setText(Logistic.GENRES));
         myTabLayout.addTab(myTabLayout.newTab().setText(Logistic.PLAYLIST));
-        myTabLayout.addTab(myTabLayout.newTab().setText(Logistic.OFFLINE));
+        myTabLayout.addTab(myTabLayout.newTab().setText(Logistic.SEARCH));
 
         myTabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
 

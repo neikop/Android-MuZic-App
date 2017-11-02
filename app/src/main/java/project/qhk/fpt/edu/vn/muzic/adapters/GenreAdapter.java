@@ -1,6 +1,5 @@
 package project.qhk.fpt.edu.vn.muzic.adapters;
 
-import android.os.Build;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;

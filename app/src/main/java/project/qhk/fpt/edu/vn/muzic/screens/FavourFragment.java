@@ -13,9 +13,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import project.qhk.fpt.edu.vn.muzic.R;
 import project.qhk.fpt.edu.vn.muzic.adapters.PlaylistAdapter;
-import project.qhk.fpt.edu.vn.muzic.adapters.SongAdapter;
 import project.qhk.fpt.edu.vn.muzic.adapters.listeners.RecyclerViewListener;
-import project.qhk.fpt.edu.vn.muzic.managers.RealmManager;
 
 /**
  * A simple {@link Fragment} subclass.

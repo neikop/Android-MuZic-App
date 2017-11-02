@@ -66,14 +66,13 @@ public class SongsFragment extends Fragment {
     private Genre genre;
     private boolean isWaiting;
 
-    public void getGenreIndex(int index) {
-        genre = RealmManager.getInstance().getGenres().get(index);
-    }
-
     public SongsFragment() {
         // Required empty public constructor
     }
 
+    public void getGenreIndex(int index) {
+        genre = RealmManager.getInstance().getGenres().get(index);
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,

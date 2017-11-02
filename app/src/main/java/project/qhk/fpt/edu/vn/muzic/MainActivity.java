@@ -32,7 +32,7 @@ import project.qhk.fpt.edu.vn.muzic.notifiers.SongChanger;
 import project.qhk.fpt.edu.vn.muzic.notifiers.WaitingChanger;
 import project.qhk.fpt.edu.vn.muzic.screens.GenresFragment;
 import project.qhk.fpt.edu.vn.muzic.screens.LoginFragment;
-import project.qhk.fpt.edu.vn.muzic.screens.MainFragment;
+import project.qhk.fpt.edu.vn.muzic.screens.SettingFragment;
 import project.qhk.fpt.edu.vn.muzic.screens.PlayerFragment;
 import project.qhk.fpt.edu.vn.muzic.screens.SongsFragment;
 import project.qhk.fpt.edu.vn.muzic.services.MusicService;
@@ -61,6 +61,20 @@ public class MainActivity extends AppCompatActivity {
 
     @BindView(R.id.cute_image_button_go)
     ImageView cuteImageButtonGo;
+    Song playingSong;
+    /**
+     * PLAYER ================================================================================
+     */
+
+    private Genre genre;
+    private Song song;
+    private int indexSong;
+    private boolean isPlaying;
+    private boolean isWaiting;
+    private boolean isSyncing = false;
+    private CountDownTimer countDownTimer;
+    private int remainTime;
+    private int zTotalTime;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,7 +92,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void goContent() {
-        openFragment(this.getClass().getSimpleName(), new MainFragment(), false);
+        openFragment(this.getClass().getSimpleName(), new SettingFragment(), false);
 
         cutePlayer.setVisibility(View.GONE);
         cuteSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -103,9 +117,9 @@ public class MainActivity extends AppCompatActivity {
 
     @Subscribe
     public void onFragmentEvent(FragmentChanger changer) {
-        if (changer.getSource().equals(MainFragment.class.getSimpleName())) {
+        if (changer.getSource().equals(SettingFragment.class.getSimpleName())) {
             getSupportFragmentManager().beginTransaction()
-                    .setCustomAnimations(R.anim.go_down_in, R.anim.nothing, R.anim.nothing, R.anim.go_down_out)
+                    .setCustomAnimations(R.anim.go_down_in, R.anim.do_nothing, R.anim.do_nothing, R.anim.go_down_out)
                     .replace(R.id.layout_mommy, new LoginFragment())
                     .addToBackStack(null).commit();
         } else openFragment(changer.getSource(), changer.getFragment(), changer.isAddToBackStack());
@@ -123,21 +137,6 @@ public class MainActivity extends AppCompatActivity {
         if (addToBackStack) fragmentTransaction.addToBackStack(null);
         fragmentTransaction.commit();
     }
-
-    /**
-     * PLAYER ================================================================================
-     */
-
-    private Genre genre;
-    private Song song;
-    private int indexSong;
-    private boolean isPlaying;
-    private boolean isWaiting;
-    private boolean isSyncing = false;
-
-    private CountDownTimer countDownTimer;
-    private int remainTime;
-    private int zTotalTime;
 
     @Subscribe
     public void onSongEvent(SongChanger event) {
@@ -184,8 +183,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
-
-    Song playingSong;
 
     @Subscribe
     public void goPlay(SimpleNotifier event) {
@@ -268,7 +265,7 @@ public class MainActivity extends AppCompatActivity {
         countDownTimerCancel(-1);
 
         getSupportFragmentManager().beginTransaction()
-                .setCustomAnimations(R.anim.go_up_in, R.anim.nothing, R.anim.nothing, R.anim.go_down_out)
+                .setCustomAnimations(R.anim.go_up_in, R.anim.do_nothing, R.anim.do_nothing, R.anim.go_down_out)
                 .replace(R.id.layout_mommy, new PlayerFragment())
                 .addToBackStack(null).commit();
     }

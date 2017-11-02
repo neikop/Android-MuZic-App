@@ -43,11 +43,11 @@ public class Song extends RealmObject {
         return imageLink;
     }
 
-    public void setImagePicture(String imagePicture) {
-        this.imagePicture = imagePicture;
-    }
-
     public String getImagePicture() {
         return imagePicture;
+    }
+
+    public void setImagePicture(String imagePicture) {
+        this.imagePicture = imagePicture;
     }
 }
