@@ -89,6 +89,7 @@ public class LoginFragment extends Fragment {
     private void settingThingsUp(View view) {
         ButterKnife.bind(this, view);
 
+        getContent();
         new CountDownTimer(500, 100) {
             @Override
             public void onTick(long millisUntilFinished) {
@@ -100,7 +101,6 @@ public class LoginFragment extends Fragment {
                 ((MainActivity) getActivity()).setLayoutDaddy(View.INVISIBLE);
             }
         }.start();
-        getContent();
     }
 
     private void getContent() {
@@ -111,7 +111,6 @@ public class LoginFragment extends Fragment {
     public void onBackPressed() {
         ((MainActivity) getActivity()).setLayoutDaddy(View.VISIBLE);
         getActivity().onBackPressed();
-
     }
 
     @OnClick(R.id.login_button)

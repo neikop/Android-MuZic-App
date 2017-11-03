@@ -33,7 +33,6 @@ import project.qhk.fpt.edu.vn.muzic.notifiers.FragmentChanger;
 import project.qhk.fpt.edu.vn.muzic.notifiers.SimpleNotifier;
 import project.qhk.fpt.edu.vn.muzic.notifiers.SongChanger;
 import project.qhk.fpt.edu.vn.muzic.notifiers.WaitingChanger;
-import project.qhk.fpt.edu.vn.muzic.screens.AccountDetailFragment;
 import project.qhk.fpt.edu.vn.muzic.screens.FavourFragment;
 import project.qhk.fpt.edu.vn.muzic.screens.FavourSongFragment;
 import project.qhk.fpt.edu.vn.muzic.screens.GenresFragment;
@@ -128,10 +127,10 @@ public class MainActivity extends AppCompatActivity {
     public void onFragmentEvent(FragmentChanger changer) {
         if (changer.getSource().equals(SettingFragment.class.getSimpleName())) {
 
-        getSupportFragmentManager().beginTransaction()
-                .setCustomAnimations(R.anim.go_down_in, R.anim.do_nothing, R.anim.do_nothing, R.anim.go_down_out)
-                .replace(R.id.layout_mommy, new LoginFragment())
-                .addToBackStack(null).commit();
+            getSupportFragmentManager().beginTransaction()
+                    .setCustomAnimations(R.anim.go_down_in, R.anim.do_nothing, R.anim.do_nothing, R.anim.go_down_out)
+                    .replace(R.id.layout_mommy, new LoginFragment())
+                    .addToBackStack(null).commit();
 
         } else openFragment(changer.getSource(), changer.getFragment(), changer.isAddToBackStack());
     }
@@ -358,7 +357,6 @@ public class MainActivity extends AppCompatActivity {
         String userName = PreferenceManager.getInstance().getUsername();
         if (!userName.isEmpty()) {
             System.out.println("Live");
-            itemHello.setIcon(R.drawable.avatar);
         } else {
             itemHello.setIcon(R.drawable.ic_perm_identity_white_48px);
         }
