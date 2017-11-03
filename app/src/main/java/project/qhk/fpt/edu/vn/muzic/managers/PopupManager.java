@@ -10,9 +10,14 @@ import android.widget.EditText;
 import android.widget.PopupMenu;
 import android.widget.Toast;
 
+import org.greenrobot.eventbus.EventBus;
+
 import project.qhk.fpt.edu.vn.muzic.R;
 import project.qhk.fpt.edu.vn.muzic.models.Genre;
 import project.qhk.fpt.edu.vn.muzic.models.Song;
+import project.qhk.fpt.edu.vn.muzic.notifiers.SimpleNotifier;
+import project.qhk.fpt.edu.vn.muzic.screens.FavourFragment;
+import project.qhk.fpt.edu.vn.muzic.screens.FavourSongFragment;
 
 /**
  * Created by WindzLord on 11/1/2017.
@@ -32,6 +37,9 @@ public class PopupManager {
                 if (item.getItemId() == -1)
                     createPlaylist(context);
                 else addToPlaylist(context, item.getItemId());
+
+                EventBus.getDefault().post(new SimpleNotifier(FavourSongFragment.class.getSimpleName()));
+                EventBus.getDefault().post(new SimpleNotifier(FavourFragment.class.getSimpleName()));
 
                 return true;
             }

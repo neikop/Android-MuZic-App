@@ -6,8 +6,10 @@ import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.PopupMenu;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -26,6 +28,7 @@ import project.qhk.fpt.edu.vn.muzic.adapters.listeners.RecyclerViewListener;
 import project.qhk.fpt.edu.vn.muzic.managers.RealmManager;
 import project.qhk.fpt.edu.vn.muzic.models.Genre;
 import project.qhk.fpt.edu.vn.muzic.models.Song;
+import project.qhk.fpt.edu.vn.muzic.notifiers.SimpleNotifier;
 import project.qhk.fpt.edu.vn.muzic.notifiers.SongChanger;
 import project.qhk.fpt.edu.vn.muzic.notifiers.WaitingChanger;
 
@@ -104,7 +107,20 @@ public class FavourSongFragment extends Fragment {
 
             @Override
             public void onLongItemClick(View view, int position) {
+                PopupMenu popup = new PopupMenu(getContext(), view);
+                popup.getMenuInflater().inflate(R.menu.menu_favour_song, popup.getMenu());
 
+                popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                    public boolean onMenuItemClick(MenuItem item) {
+                        if ("Remove".equals(item.getTitle())) {
+                            RealmManager.getInstance().removeFavourSong(songList.get(position));
+                            songList = RealmManager.getInstance().getSongs(playlist.getGenreID());
+                            recyclerViewSongs.getAdapter().notifyDataSetChanged();
+                        }
+                        return true;
+                    }
+                });
+                popup.show();
             }
         }));
     }
@@ -127,6 +143,13 @@ public class FavourSongFragment extends Fragment {
 
         isWaiting = event.isWaiting();
         waitingBar.setVisibility(isWaiting ? View.VISIBLE : View.INVISIBLE);
+    }
+
+    @Subscribe
+    public void onUpdatePlaylist(SimpleNotifier event) {
+        if (!this.getClass().getSimpleName().equals(event.getTarget())) return;
+
+        recyclerViewSongs.getAdapter().notifyDataSetChanged();
     }
 
     @Override
