@@ -31,6 +31,7 @@ import project.qhk.fpt.edu.vn.muzic.notifiers.SimpleNotifier;
 import project.qhk.fpt.edu.vn.muzic.notifiers.SongChanger;
 import project.qhk.fpt.edu.vn.muzic.notifiers.WaitingChanger;
 import project.qhk.fpt.edu.vn.muzic.screens.FavourFragment;
+import project.qhk.fpt.edu.vn.muzic.screens.FavourSongFragment;
 import project.qhk.fpt.edu.vn.muzic.screens.GenresFragment;
 import project.qhk.fpt.edu.vn.muzic.screens.LoginFragment;
 import project.qhk.fpt.edu.vn.muzic.screens.PlayerFragment;
@@ -144,7 +145,7 @@ public class MainActivity extends AppCompatActivity {
     public void onSongEvent(SongChanger event) {
         if (!this.getClass().getSimpleName().equals(event.getTarget())) return;
 
-        genre = RealmManager.getInstance().getAliveGenres().get(event.getIndexGenre());
+        genre = event.getGenre();
         if (RealmManager.getInstance().getSongs(genre.getGenreID()).isEmpty()) return;
 
         prePlay(event.getIndexSong());
@@ -230,12 +231,12 @@ public class MainActivity extends AppCompatActivity {
 
     public void goNextSong() {
         if (isWaiting) return;
-        prePlay(++indexSong % Logistic.MAX_SONG);
+        prePlay(++indexSong % RealmManager.getInstance().getSongs(genre.getGenreID()).size());
     }
 
     public void goPreviousSong() {
         if (isWaiting) return;
-        prePlay((indexSong + Logistic.MAX_SONG - 1) % Logistic.MAX_SONG);
+        prePlay((indexSong + RealmManager.getInstance().getSongs(genre.getGenreID()).size() - 1) % RealmManager.getInstance().getSongs(genre.getGenreID()).size());
     }
 
     private void countDownTimerCancel(long millisInFuture) {
@@ -274,6 +275,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void changeWaiting(boolean waiting) {
         isWaiting = waiting;
+        EventBus.getDefault().post(new WaitingChanger(FavourSongFragment.class.getSimpleName(), waiting));
         EventBus.getDefault().post(new WaitingChanger(SongFragment.class.getSimpleName(), waiting));
         EventBus.getDefault().post(new WaitingChanger(PlayerFragment.class.getSimpleName(), waiting));
     }

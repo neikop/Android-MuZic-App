@@ -14,7 +14,6 @@ public class Logistic {
     public final static String GENRES = "GENRES";
     public final static String PLAYLIST = "PLAYLIST";
     public final static String SEARCH = "SEARCH";
-    public final static Integer MAX_SONG = 50;
 
     public final static String TOP_SONG_API = "https://iTunes.apple.com";
 

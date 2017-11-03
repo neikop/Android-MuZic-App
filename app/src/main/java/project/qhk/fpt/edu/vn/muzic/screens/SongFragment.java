@@ -51,8 +51,8 @@ public class SongFragment extends Fragment {
     @BindView(R.id.image_genre_songs)
     ImageView imageGenreSongs;
 
-    @BindView(R.id.text_genre_songs)
-    TextView textGenreSongs;
+    @BindView(R.id.text_genre_name)
+    TextView textGenreName;
 
     @BindView(R.id.recycler_view_songs)
     RecyclerView recyclerViewSongs;
@@ -103,7 +103,7 @@ public class SongFragment extends Fragment {
         } catch (IOException ex) {
 
         }
-        textGenreSongs.setText(genre.getName().toUpperCase());
+        textGenreName.setText(genre.getName().toUpperCase());
 
         isWaiting = false;
         waitingBar.setVisibility(View.INVISIBLE);
@@ -124,7 +124,7 @@ public class SongFragment extends Fragment {
             public void onItemClick(View view, int position) {
                 if (isWaiting) return;
                 EventBus.getDefault().post(new SongChanger(
-                        MainActivity.class.getSimpleName(), genre.getIndex(), position));
+                        MainActivity.class.getSimpleName(), genre, position));
             }
 
             @Override
@@ -138,7 +138,7 @@ public class SongFragment extends Fragment {
     public void onPlayPressed() {
         if (isWaiting) return;
         EventBus.getDefault().post(new SongChanger(
-                MainActivity.class.getSimpleName(), genre.getIndex(), 0));
+                MainActivity.class.getSimpleName(), genre, 0));
     }
 
     @OnClick(R.id.image_button_back)

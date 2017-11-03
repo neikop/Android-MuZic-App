@@ -58,10 +58,10 @@ public class FavourFragment extends Fragment {
 
             @Override
             public void onItemClick(View view, int position) {
-                FavourSongFragment favourSongFragment = new FavourSongFragment();
-                favourSongFragment.setPlaylistIndex(position);
+                FavourSongFragment songFragment = new FavourSongFragment();
+                songFragment.setPlaylistIndex(position);
                 EventBus.getDefault().post(new FragmentChanger(
-                        FavourFragment.this.getClass().getSimpleName(), favourSongFragment, true));
+                        FavourFragment.this.getClass().getSimpleName(), songFragment, true));
             }
 
             @Override

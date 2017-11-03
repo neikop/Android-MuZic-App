@@ -11,17 +11,23 @@ import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import project.qhk.fpt.edu.vn.muzic.MainActivity;
 import project.qhk.fpt.edu.vn.muzic.R;
 import project.qhk.fpt.edu.vn.muzic.adapters.SongAdapter;
 import project.qhk.fpt.edu.vn.muzic.adapters.listeners.RecyclerViewListener;
 import project.qhk.fpt.edu.vn.muzic.managers.RealmManager;
 import project.qhk.fpt.edu.vn.muzic.models.Genre;
 import project.qhk.fpt.edu.vn.muzic.models.Song;
+import project.qhk.fpt.edu.vn.muzic.notifiers.SongChanger;
+import project.qhk.fpt.edu.vn.muzic.notifiers.WaitingChanger;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -66,7 +72,7 @@ public class FavourSongFragment extends Fragment {
 
     private void settingThingsUp(View view) {
         ButterKnife.bind(this, view);
-//        EventBus.getDefault().register(this);
+        EventBus.getDefault().register(this);
 
         goContent();
         goFavourSong();
@@ -92,8 +98,8 @@ public class FavourSongFragment extends Fragment {
             @Override
             public void onItemClick(View view, int position) {
                 if (isWaiting) return;
-//                EventBus.getDefault().post(new SongChanger(
-//                        MainActivity.class.getSimpleName(), genre.getIndex(), position));
+                EventBus.getDefault().post(new SongChanger(
+                        MainActivity.class.getSimpleName(), playlist, position));
             }
 
             @Override
@@ -103,9 +109,30 @@ public class FavourSongFragment extends Fragment {
         }));
     }
 
+    @OnClick(R.id.button_favour_play)
+    public void onPlayPressed() {
+        if (isWaiting) return;
+        EventBus.getDefault().post(new SongChanger(
+                MainActivity.class.getSimpleName(), playlist, 0));
+    }
+
     @OnClick(R.id.button_favour_back)
     public void onBackPressed() {
         getActivity().onBackPressed();
+    }
+
+    @Subscribe
+    public void changeWaiting(WaitingChanger event) {
+        if (!this.getClass().getSimpleName().equals(event.getTarget())) return;
+
+        isWaiting = event.isWaiting();
+        waitingBar.setVisibility(isWaiting ? View.VISIBLE : View.INVISIBLE);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        EventBus.getDefault().unregister(this);
     }
 
 }

@@ -47,7 +47,7 @@
                 android:paddingBottom="15dp">
 
                 <TextView
-                    android:id="@+id/text_genre_songs"
+                    android:id="@+id/text_genre_name"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="15dp"
@@ -60,7 +60,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_below="@id/text_genre_songs"
+                    android:layout_below="@id/text_genre_name"
                     android:layout_marginLeft="15dp"
                     android:text="50 songs"
                     android:textColor="@color/colorWhiteLight"
