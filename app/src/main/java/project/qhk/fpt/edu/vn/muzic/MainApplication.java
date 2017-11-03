@@ -20,7 +20,7 @@ import project.qhk.fpt.edu.vn.muzic.models.Genre;
 import project.qhk.fpt.edu.vn.muzic.models.Song;
 import project.qhk.fpt.edu.vn.muzic.models.api_models.MediaFeed;
 import project.qhk.fpt.edu.vn.muzic.notifiers.UpdateNotifier;
-import project.qhk.fpt.edu.vn.muzic.screens.SongsFragment;
+import project.qhk.fpt.edu.vn.muzic.screens.SongFragment;
 import project.qhk.fpt.edu.vn.muzic.services.MusicService;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -47,21 +47,19 @@ public class MainApplication extends Application {
         ImageLoader.getInstance().init(new ImageLoaderConfiguration.Builder(this).build());
         MusicPlayer.init(this);
 
-        if (RealmManager.getInstance().getGenres().isEmpty())
-            goGenre();
+        if (RealmManager.getInstance().getAliveGenres().isEmpty()) goGenre();
         goTopSong();
     }
 
     private void goGenre() {
         System.out.println("goGenre");
-        RealmManager.getInstance().clearGenre();
 
         InputStream inputStream = getResources().openRawResource(R.raw.genre);
         InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
         BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
         try {
             while (bufferedReader.readLine() != null)
-                RealmManager.getInstance().addGenre(Genre.create(bufferedReader.readLine()));
+                RealmManager.getInstance().addGenre(Genre.createGenre(bufferedReader.readLine()));
 
             bufferedReader.close();
             inputStreamReader.close();
@@ -69,13 +67,13 @@ public class MainApplication extends Application {
 
         } catch (IOException e) {
             for (String genre : PreferenceManager.getInstance().getGenres())
-                RealmManager.getInstance().addGenre(Genre.create(genre));
+                RealmManager.getInstance().addGenre(Genre.createGenre(genre));
         }
     }
 
     private void goTopSong() {
         System.out.println("Service goTopSong");
-        RealmManager.getInstance().clearSong();
+        RealmManager.getInstance().clearTopSong();
 
         Retrofit mediaRetrofit = new Retrofit.Builder()
                 .baseUrl(Logistic.TOP_SONG_API)
@@ -83,22 +81,22 @@ public class MainApplication extends Application {
                 .build();
         MusicService musicService = mediaRetrofit.create(MusicService.class);
 
-        for (Genre genre : RealmManager.getInstance().getGenres()) {
+        for (Genre genre : RealmManager.getInstance().getAliveGenres()) {
 
-            musicService.getMediaFeed(genre.getNumber()).enqueue(new Callback<MediaFeed>() {
+            musicService.getMediaFeed(genre.getGenreID()).enqueue(new Callback<MediaFeed>() {
                 @Override
                 public void onResponse(Call<MediaFeed> call, Response<MediaFeed> response) {
                     for (MediaFeed.Feed.Entry entry : response.body().getTopSongList()) {
-                        RealmManager.getInstance().addSong(Song.create(genre.getNumber(), entry));
+                        RealmManager.getInstance().addSong(Song.create(genre.getGenreID(), entry));
                     }
                     EventBus.getDefault().post(new UpdateNotifier(
-                            SongsFragment.class.getSimpleName(), genre.getNumber(), true));
+                            SongFragment.class.getSimpleName(), genre.getGenreID(), true));
                 }
 
                 @Override
                 public void onFailure(Call<MediaFeed> call, Throwable throwable) {
                     EventBus.getDefault().post(new UpdateNotifier(
-                            SongsFragment.class.getSimpleName(), genre.getNumber(), false));
+                            SongFragment.class.getSimpleName(), genre.getGenreID(), false));
                 }
             });
         }

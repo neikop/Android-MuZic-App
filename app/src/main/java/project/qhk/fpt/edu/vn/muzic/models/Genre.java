@@ -8,20 +8,30 @@ import io.realm.RealmObject;
 
 public class Genre extends RealmObject {
 
-    private int index;
-    private String number;
-    private String name;
+    public final static String FIELD_TYPE = "type";
+    public final static String FIELD_ALIVE = "alive";
+    public final static String TYPE_GENRE = "GENRE";
+    public final static String TYPE_PLAYLIST = "PLAYLIST";
 
-    public static Genre create(String line) {
+    private String type;
+    private int index;
+    private String genreID;
+    private String name;
+    private boolean alive;
+
+    public static Genre createGenre(String line) {
         Genre genre = new Genre();
-        genre.setNumber(line.split(":")[0]);
+        genre.type = TYPE_GENRE;
+        genre.alive = true;
+        genre.setGenreID(line.split(":")[0]);
         genre.setName(line.split(":")[1]);
         return genre;
     }
 
-    public static Genre create(String number, String name) {
+    public static Genre createPlaylist(String name) {
         Genre genre = new Genre();
-        genre.setNumber(number);
+        genre.type = TYPE_PLAYLIST;
+        genre.alive = true;
         genre.setName(name);
         return genre;
     }
@@ -34,12 +44,12 @@ public class Genre extends RealmObject {
         this.index = index;
     }
 
-    public String getNumber() {
-        return number;
+    public String getGenreID() {
+        return genreID;
     }
 
-    public void setNumber(String number) {
-        this.number = number;
+    public void setGenreID(String genreID) {
+        this.genreID = genreID;
     }
 
     public String getName() {
@@ -48,5 +58,9 @@ public class Genre extends RealmObject {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public void goDie() {
+        this.alive = false;
     }
 }

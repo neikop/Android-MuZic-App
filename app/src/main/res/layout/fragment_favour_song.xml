@@ -2,7 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="project.qhk.fpt.edu.vn.muzic.screens.SongsFragment">
+    tools:context="project.qhk.fpt.edu.vn.muzic.screens.FavourSongFragment">
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -19,7 +19,6 @@
                 android:layout_height="wrap_content">
 
                 <ImageView
-                    android:id="@+id/image_genre_songs"
                     android:layout_width="match_parent"
                     android:layout_height="180dp"
                     android:scaleType="centerCrop"
@@ -31,7 +30,7 @@
                     android:background="@drawable/gradient_top" />
 
                 <ImageButton
-                    android:id="@+id/image_button_back"
+                    android:id="@+id/button_favour_back"
                     android:layout_width="20dp"
                     android:layout_height="20dp"
                     android:layout_marginLeft="10dp"
@@ -47,7 +46,7 @@
                 android:paddingBottom="15dp">
 
                 <TextView
-                    android:id="@+id/text_genre_songs"
+                    android:id="@+id/text_favour_name"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="15dp"
@@ -58,9 +57,10 @@
                     android:textStyle="bold" />
 
                 <TextView
+                    android:id="@+id/text_favour_size"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_below="@id/text_genre_songs"
+                    android:layout_below="@id/text_favour_name"
                     android:layout_marginLeft="15dp"
                     android:text="50 songs"
                     android:textColor="@color/colorWhiteLight"
@@ -73,33 +73,15 @@
                 android:layout_height="match_parent">
 
                 <android.support.v7.widget.RecyclerView
-                    android:id="@+id/recycler_view_songs"
+                    android:id="@+id/recycler_view_favour_songs"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent" />
 
                 <ProgressBar
-                    android:id="@+id/progress_bar_waiting"
+                    android:id="@+id/progress_bar_favour_waiting"
                     android:layout_width="80dp"
                     android:layout_height="80dp"
                     android:layout_centerInParent="true" />
-
-                <RelativeLayout
-                    android:id="@+id/button_refresh"
-                    android:layout_width="80dp"
-                    android:layout_height="80dp"
-                    android:layout_centerInParent="true">
-
-                    <de.hdodenhof.circleimageview.CircleImageView
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:src="@color/colorAccent" />
-
-                    <ImageView
-                        android:layout_width="40dp"
-                        android:layout_height="40dp"
-                        android:layout_centerInParent="true"
-                        android:src="@drawable/ic_sync_white_48px" />
-                </RelativeLayout>
 
             </RelativeLayout>
 
@@ -113,7 +95,7 @@
             android:layout_marginTop="145dp">
 
             <de.hdodenhof.circleimageview.CircleImageView
-                android:id="@+id/button_play"
+                android:id="@+id/button_favour_play"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:src="@color/colorAccent" />

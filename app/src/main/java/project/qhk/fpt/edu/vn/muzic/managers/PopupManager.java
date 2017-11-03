@@ -11,7 +11,7 @@ import android.widget.PopupMenu;
 import android.widget.Toast;
 
 import project.qhk.fpt.edu.vn.muzic.R;
-import project.qhk.fpt.edu.vn.muzic.models.Playlist;
+import project.qhk.fpt.edu.vn.muzic.models.Genre;
 import project.qhk.fpt.edu.vn.muzic.models.Song;
 
 /**
@@ -33,12 +33,6 @@ public class PopupManager {
                     createPlaylist(context);
                 else addToPlaylist(context, item.getItemId());
 
-                for (Playlist playlist : RealmManager.getInstance().getAllPlaylistAlive()) {
-                    System.out.println("=== " + playlist.getName());
-                    for (Song song : playlist.getListSong()) {
-                        System.out.println("+ " + song.getName() + " - " + song.getArtist());
-                    }
-                }
                 return true;
             }
         });
@@ -65,7 +59,9 @@ public class PopupManager {
                 String title = input.getText().toString().trim();
                 if (title.isEmpty()) title = "Empty name";
 
-                RealmManager.getInstance().addPlaylist(Playlist.create(title), MusicPlayer.getInstance().getSong());
+                Genre playlist = Genre.createPlaylist(title);
+                RealmManager.getInstance().addPlaylist(playlist);
+                RealmManager.getInstance().addSong(Song.create(playlist.getGenreID(), MusicPlayer.getInstance().getSong()));
 
                 Toast.makeText(context, "Add to " + title, Toast.LENGTH_SHORT).show();
             }
@@ -79,8 +75,8 @@ public class PopupManager {
     }
 
     private void addToPlaylist(Context context, int indexList) {
-        Playlist playlist = RealmManager.getInstance().getAllPlaylistAlive().get(indexList);
-        RealmManager.getInstance().addSongToList(playlist, MusicPlayer.getInstance().getSong());
+        Genre playlist = RealmManager.getInstance().getAlivePlaylist().get(indexList);
+        RealmManager.getInstance().addSong(Song.create(playlist.getGenreID(), MusicPlayer.getInstance().getSong()));
 
         Toast.makeText(context, "Add to " + playlist.getName(), Toast.LENGTH_SHORT).show();
     }
@@ -89,7 +85,7 @@ public class PopupManager {
         popup.getMenu().clear();
         int index = -1;
         addItem(index++);
-        for (Playlist playlist : RealmManager.getInstance().getAllPlaylistAlive()) {
+        for (Genre playlist : RealmManager.getInstance().getAlivePlaylist()) {
             addItem(index++, playlist.getName());
         }
         popup.show();

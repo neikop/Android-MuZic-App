@@ -46,7 +46,7 @@ import retrofit2.Retrofit;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class SongsFragment extends Fragment {
+public class SongFragment extends Fragment {
 
     @BindView(R.id.image_genre_songs)
     ImageView imageGenreSongs;
@@ -66,19 +66,19 @@ public class SongsFragment extends Fragment {
     private Genre genre;
     private boolean isWaiting;
 
-    public SongsFragment() {
+    public SongFragment() {
         // Required empty public constructor
     }
 
-    public void getGenreIndex(int index) {
-        genre = RealmManager.getInstance().getGenres().get(index);
+    public void setGenreIndex(int index) {
+        genre = RealmManager.getInstance().getAliveGenres().get(index);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_songs, container, false);
+        View view = inflater.inflate(R.layout.fragment_song, container, false);
         settingThingsUp(view);
 
         return view;
@@ -89,14 +89,14 @@ public class SongsFragment extends Fragment {
         EventBus.getDefault().register(this);
 
         goContent();
-        if (RealmManager.getInstance().getSongs(genre.getNumber()).isEmpty()) {
+        if (RealmManager.getInstance().getSongs(genre.getGenreID()).isEmpty()) {
             goUpdate();
         } else goTopSong();
     }
 
     private void goContent() {
         try {
-            InputStream stream = getActivity().getAssets().open("images/genre_" + genre.getNumber() + ".png");
+            InputStream stream = getActivity().getAssets().open("images/genre_" + genre.getGenreID() + ".png");
             Drawable drawable = Drawable.createFromStream(stream, null);
             imageGenreSongs.setImageDrawable(drawable);
             stream.close();
@@ -114,7 +114,7 @@ public class SongsFragment extends Fragment {
         recyclerViewSongs.setLayoutManager(new LinearLayoutManager(
                 getActivity(), LinearLayoutManager.VERTICAL, false));
         recyclerViewSongs.setAdapter(new SongAdapter(
-                RealmManager.getInstance().getSongs(genre.getNumber())));
+                RealmManager.getInstance().getSongs(genre.getGenreID())));
         recyclerViewSongs.getAdapter().notifyDataSetChanged();
 
         recyclerViewSongs.addOnItemTouchListener(new RecyclerViewListener(
@@ -157,7 +157,7 @@ public class SongsFragment extends Fragment {
     @Subscribe
     public void goUpdate(UpdateNotifier event) {
         if (!this.getClass().getSimpleName().equals(event.getTarget())) return;
-        if (!genre.getNumber().equals(event.getGenreID())) return;
+        if (!genre.getGenreID().equals(event.getGenreID())) return;
 
         waitingBar.setVisibility(View.INVISIBLE);
         if (!event.isSuccess()) {
@@ -171,7 +171,7 @@ public class SongsFragment extends Fragment {
         System.out.println("goUpdate");
         buttonRefresh.setVisibility(View.INVISIBLE);
         waitingBar.setVisibility(View.VISIBLE);
-        RealmManager.getInstance().clearSong();
+        RealmManager.getInstance().clearTopSong();
 
         Retrofit mediaRetrofit = new Retrofit.Builder()
                 .baseUrl(Logistic.TOP_SONG_API)
@@ -179,22 +179,22 @@ public class SongsFragment extends Fragment {
                 .build();
         MusicService musicService = mediaRetrofit.create(MusicService.class);
 
-        for (Genre genre : RealmManager.getInstance().getGenres()) {
+        for (Genre genre : RealmManager.getInstance().getAliveGenres()) {
 
-            musicService.getMediaFeed(genre.getNumber()).enqueue(new Callback<MediaFeed>() {
+            musicService.getMediaFeed(genre.getGenreID()).enqueue(new Callback<MediaFeed>() {
                 @Override
                 public void onResponse(Call<MediaFeed> call, Response<MediaFeed> response) {
                     for (MediaFeed.Feed.Entry entry : response.body().getTopSongList()) {
-                        RealmManager.getInstance().addSong(Song.create(genre.getNumber(), entry));
+                        RealmManager.getInstance().addSong(Song.create(genre.getGenreID(), entry));
                     }
                     EventBus.getDefault().post(new UpdateNotifier(
-                            SongsFragment.class.getSimpleName(), genre.getNumber(), true));
+                            SongFragment.class.getSimpleName(), genre.getGenreID(), true));
                 }
 
                 @Override
                 public void onFailure(Call<MediaFeed> call, Throwable throwable) {
                     EventBus.getDefault().post(new UpdateNotifier(
-                            SongsFragment.class.getSimpleName(), genre.getNumber(), false));
+                            SongFragment.class.getSimpleName(), genre.getGenreID(), false));
                 }
             });
         }

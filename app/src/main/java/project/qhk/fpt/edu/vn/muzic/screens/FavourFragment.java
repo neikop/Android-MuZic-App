@@ -9,11 +9,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import org.greenrobot.eventbus.EventBus;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import project.qhk.fpt.edu.vn.muzic.R;
 import project.qhk.fpt.edu.vn.muzic.adapters.PlaylistAdapter;
 import project.qhk.fpt.edu.vn.muzic.adapters.listeners.RecyclerViewListener;
+import project.qhk.fpt.edu.vn.muzic.notifiers.FragmentChanger;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -55,7 +58,10 @@ public class FavourFragment extends Fragment {
 
             @Override
             public void onItemClick(View view, int position) {
-
+                FavourSongFragment favourSongFragment = new FavourSongFragment();
+                favourSongFragment.setPlaylistIndex(position);
+                EventBus.getDefault().post(new FragmentChanger(
+                        FavourFragment.this.getClass().getSimpleName(), favourSongFragment, true));
             }
 
             @Override

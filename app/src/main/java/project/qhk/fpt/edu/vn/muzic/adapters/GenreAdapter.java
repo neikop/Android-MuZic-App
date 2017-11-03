@@ -24,12 +24,12 @@ public class GenreAdapter extends RecyclerView.Adapter<GenreViewHolder> {
 
     @Override
     public void onBindViewHolder(GenreViewHolder holder, int position) {
-        holder.bind(RealmManager.getInstance().getGenres().get(position));
+        holder.bind(RealmManager.getInstance().getAliveGenres().get(position));
     }
 
     @Override
     public int getItemCount() {
-        return RealmManager.getInstance().getGenres().size();
+        return RealmManager.getInstance().getAliveGenres().size();
     }
 }
 

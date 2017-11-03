@@ -30,11 +30,12 @@ import project.qhk.fpt.edu.vn.muzic.notifiers.FragmentChanger;
 import project.qhk.fpt.edu.vn.muzic.notifiers.SimpleNotifier;
 import project.qhk.fpt.edu.vn.muzic.notifiers.SongChanger;
 import project.qhk.fpt.edu.vn.muzic.notifiers.WaitingChanger;
+import project.qhk.fpt.edu.vn.muzic.screens.FavourFragment;
 import project.qhk.fpt.edu.vn.muzic.screens.GenresFragment;
 import project.qhk.fpt.edu.vn.muzic.screens.LoginFragment;
-import project.qhk.fpt.edu.vn.muzic.screens.SettingFragment;
 import project.qhk.fpt.edu.vn.muzic.screens.PlayerFragment;
-import project.qhk.fpt.edu.vn.muzic.screens.SongsFragment;
+import project.qhk.fpt.edu.vn.muzic.screens.SettingFragment;
+import project.qhk.fpt.edu.vn.muzic.screens.SongFragment;
 import project.qhk.fpt.edu.vn.muzic.services.MusicService;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -128,7 +129,8 @@ public class MainActivity extends AppCompatActivity {
     private void openFragment(String source, Fragment fragment, boolean addToBackStack) {
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
 
-        if (source.equals(GenresFragment.class.getSimpleName())) {
+        if (source.equals(GenresFragment.class.getSimpleName())
+                || source.equals(FavourFragment.class.getSimpleName())) {
             fragmentTransaction.setCustomAnimations(R.anim.go_fade_in, R.anim.go_fade_out,
                     R.anim.go_right_in, R.anim.go_right_out);
         }
@@ -142,15 +144,15 @@ public class MainActivity extends AppCompatActivity {
     public void onSongEvent(SongChanger event) {
         if (!this.getClass().getSimpleName().equals(event.getTarget())) return;
 
-        genre = RealmManager.getInstance().getGenres().get(event.getIndexGenre());
-        if (RealmManager.getInstance().getSongs(genre.getNumber()).isEmpty()) return;
+        genre = RealmManager.getInstance().getAliveGenres().get(event.getIndexGenre());
+        if (RealmManager.getInstance().getSongs(genre.getGenreID()).isEmpty()) return;
 
         prePlay(event.getIndexSong());
     }
 
     private void prePlay(int indexSong) {
         this.indexSong = indexSong;
-        song = RealmManager.getInstance().getSongs(genre.getNumber()).get(indexSong);
+        song = RealmManager.getInstance().getSongs(genre.getGenreID()).get(indexSong);
         String search = song.getName() + " - " + song.getArtist();
         System.out.println("searching " + search);
 
@@ -272,7 +274,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void changeWaiting(boolean waiting) {
         isWaiting = waiting;
-        EventBus.getDefault().post(new WaitingChanger(SongsFragment.class.getSimpleName(), waiting));
+        EventBus.getDefault().post(new WaitingChanger(SongFragment.class.getSimpleName(), waiting));
         EventBus.getDefault().post(new WaitingChanger(PlayerFragment.class.getSimpleName(), waiting));
     }
 
