@@ -4,7 +4,6 @@ import android.content.Context;
 
 import java.util.List;
 
-import io.realm.Case;
 import io.realm.Realm;
 import project.qhk.fpt.edu.vn.muzic.models.Genre;
 import project.qhk.fpt.edu.vn.muzic.models.Song;
@@ -78,7 +77,8 @@ public class RealmManager {
 
     public List<Song> getSongs(String genreID) {
         return getRealm().where(Song.class)
-                .equalTo(Song.GENRE_ID, genreID, Case.INSENSITIVE)
+                .equalTo(Song.GENRE_ID, genreID)
+                .equalTo(Song.FIELD_ALIVE, true)
                 .findAll();
     }
 
@@ -87,6 +87,31 @@ public class RealmManager {
         getRealm().where(Song.class)
                 .not().beginsWith(Song.GENRE_ID, Genre.TYPE_PLAYLIST)
                 .findAll().deleteAllFromRealm();
+        commitTransaction();
+    }
+
+    public void removeGenre(Genre genre) {
+        beginTransaction();
+        for (Song song : getSongs(genre.getGenreID())) song.setGenreID("0");
+        genre.goDie();
+        commitTransaction();
+    }
+
+    public void clearSearch() {
+        beginTransaction();
+        for (Song song : getSongs("SEARCH")) song.goDie();
+        commitTransaction();
+    }
+
+    public void renameGenre(Genre genre, String name) {
+        beginTransaction();
+        genre.setName(name);
+        commitTransaction();
+    }
+
+    public void removeFavourSong(Song song) {
+        beginTransaction();
+        song.setGenreID("DEAD");
         commitTransaction();
     }
 

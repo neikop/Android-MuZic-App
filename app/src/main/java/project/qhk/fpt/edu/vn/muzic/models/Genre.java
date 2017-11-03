@@ -19,6 +19,13 @@ public class Genre extends RealmObject {
     private String name;
     private boolean alive;
 
+    public Genre() {
+    }
+
+    public Genre(String genreID) {
+        this.genreID = genreID;
+    }
+
     public static Genre createGenre(String line) {
         Genre genre = new Genre();
         genre.type = TYPE_GENRE;

@@ -1,7 +1,6 @@
 package project.qhk.fpt.edu.vn.muzic.screens;
 
 
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
@@ -17,9 +16,6 @@ import android.widget.Toast;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
-
-import java.io.IOException;
-import java.io.InputStream;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -95,14 +91,7 @@ public class SongFragment extends Fragment {
     }
 
     private void goContent() {
-        try {
-            InputStream stream = getActivity().getAssets().open("images/genre_" + genre.getGenreID() + ".png");
-            Drawable drawable = Drawable.createFromStream(stream, null);
-            imageGenreSongs.setImageDrawable(drawable);
-            stream.close();
-        } catch (IOException ex) {
-
-        }
+        Logistic.setImagePicture(getActivity(), imageGenreSongs, "images/genre_" + genre.getGenreID() + ".png");
         textGenreName.setText(genre.getName().toUpperCase());
 
         isWaiting = false;

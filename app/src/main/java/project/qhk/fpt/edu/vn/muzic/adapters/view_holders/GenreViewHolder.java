@@ -1,17 +1,14 @@
 package project.qhk.fpt.edu.vn.muzic.adapters.view_holders;
 
 import android.content.Context;
-import android.graphics.drawable.Drawable;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import java.io.IOException;
-import java.io.InputStream;
-
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import project.qhk.fpt.edu.vn.muzic.Logistic;
 import project.qhk.fpt.edu.vn.muzic.R;
 import project.qhk.fpt.edu.vn.muzic.models.Genre;
 
@@ -36,14 +33,7 @@ public class GenreViewHolder extends RecyclerView.ViewHolder {
     }
 
     public void bind(Genre genre) {
-        try {
-            InputStream stream = context.getAssets().open("images/genre_" + genre.getGenreID() + ".png");
-            Drawable drawable = Drawable.createFromStream(stream, null);
-            imageView.setImageDrawable(drawable);
-            stream.close();
-        } catch (IOException ex) {
-
-        }
+        Logistic.setImagePicture(context, imageView, "images/genre_" + genre.getGenreID() + ".png");
         textView.setText(genre.getName().toUpperCase());
     }
 }

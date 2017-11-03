@@ -36,6 +36,8 @@ public class SongViewHolder extends RecyclerView.ViewHolder {
         textSongName.setText(song.getName());
         textSongArtist.setText(song.getArtist());
         String imageLink = song.getImageLink();
-        ImageLoader.getInstance().displayImage(imageLink, imageSongSmall);
+        if (imageLink != null)
+            ImageLoader.getInstance().displayImage(imageLink, imageSongSmall);
+        else imageSongSmall.setImageResource(R.drawable.image_song_demo);
     }
 }

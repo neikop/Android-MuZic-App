@@ -35,6 +35,7 @@ import project.qhk.fpt.edu.vn.muzic.screens.FavourSongFragment;
 import project.qhk.fpt.edu.vn.muzic.screens.GenresFragment;
 import project.qhk.fpt.edu.vn.muzic.screens.LoginFragment;
 import project.qhk.fpt.edu.vn.muzic.screens.PlayerFragment;
+import project.qhk.fpt.edu.vn.muzic.screens.SearchFragment;
 import project.qhk.fpt.edu.vn.muzic.screens.SettingFragment;
 import project.qhk.fpt.edu.vn.muzic.screens.SongFragment;
 import project.qhk.fpt.edu.vn.muzic.services.MusicService;
@@ -159,6 +160,10 @@ public class MainActivity extends AppCompatActivity {
 
         changeWaiting(true);
 
+        if (song.getStream() != null) {
+            MusicPlayer.getInstance().prepare(getApplicationContext(), song.getStream(), song);
+            return;
+        }
         Retrofit mediaRetrofit = new Retrofit.Builder()
                 .baseUrl(Logistic.GET_MP3_API)
                 .addConverterFactory(GsonConverterFactory.create())
@@ -204,7 +209,9 @@ public class MainActivity extends AppCompatActivity {
 
         cuteSongName.setText(song.getName());
         cuteSongArtist.setText(song.getArtist());
-        ImageLoader.getInstance().displayImage(song.getImageLink(), cuteSongImage);
+        if (song.getImageLink() != null)
+            ImageLoader.getInstance().displayImage(song.getImageLink(), cuteSongImage);
+        else cuteSongImage.setImageResource(R.drawable.image_song_demo);
         cuteSongImage.startAnimation(Logistic.getRotateAnimation());
 
         cuteImageButtonGo.setImageResource(R.drawable.ic_pause_white_48px);
@@ -231,12 +238,18 @@ public class MainActivity extends AppCompatActivity {
 
     public void goNextSong() {
         if (isWaiting) return;
-        prePlay(++indexSong % RealmManager.getInstance().getSongs(genre.getGenreID()).size());
+        if (RealmManager.getInstance().getSongs(genre.getGenreID()).isEmpty()) return;
+
+        int number = RealmManager.getInstance().getSongs(genre.getGenreID()).size();
+        prePlay(++indexSong % number);
     }
 
     public void goPreviousSong() {
         if (isWaiting) return;
-        prePlay((indexSong + RealmManager.getInstance().getSongs(genre.getGenreID()).size() - 1) % RealmManager.getInstance().getSongs(genre.getGenreID()).size());
+        if (RealmManager.getInstance().getSongs(genre.getGenreID()).isEmpty()) return;
+
+        int number = RealmManager.getInstance().getSongs(genre.getGenreID()).size();
+        prePlay((indexSong + number - 1) % number);
     }
 
     private void countDownTimerCancel(long millisInFuture) {
@@ -277,6 +290,7 @@ public class MainActivity extends AppCompatActivity {
         isWaiting = waiting;
         EventBus.getDefault().post(new WaitingChanger(FavourSongFragment.class.getSimpleName(), waiting));
         EventBus.getDefault().post(new WaitingChanger(SongFragment.class.getSimpleName(), waiting));
+        EventBus.getDefault().post(new WaitingChanger(SearchFragment.class.getSimpleName(), waiting));
         EventBus.getDefault().post(new WaitingChanger(PlayerFragment.class.getSimpleName(), waiting));
     }
 
@@ -313,7 +327,9 @@ public class MainActivity extends AppCompatActivity {
 
         cuteSongName.setText(playingSong.getName());
         cuteSongArtist.setText(playingSong.getArtist());
-        ImageLoader.getInstance().displayImage(playingSong.getImageLink(), cuteSongImage);
+        if (playingSong.getImageLink() != null)
+            ImageLoader.getInstance().displayImage(playingSong.getImageLink(), cuteSongImage);
+        else cuteSongImage.setImageResource(R.drawable.image_song_demo);
 
         if (isPlaying) {
             cuteImageButtonGo.setImageResource(R.drawable.ic_pause_white_48px);

@@ -31,8 +31,7 @@ public interface MusicService {
     @POST("/api/playlist/getPlaylistByUser")
     Call<PlaylistResult> getPlaylistByUser(@Body RequestBody token);
 
-    @GET("/search/tracks?client_id=MbFtrpTYuwoPYLnPGQIFPahc1TNeVFnu&limit=10&offset=0")
-    Call<SearchResult> getSearchResult(@Query("q") String query);
-
+    @GET("/search/tracks")
+    Call<SearchResult> getSearchResult(@Query("client_id") String clientId, @Query("limit") int limit, @Query("q") String query);
 
 }
