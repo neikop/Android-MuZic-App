@@ -6,6 +6,7 @@ import java.util.List;
 
 import io.realm.Realm;
 import project.qhk.fpt.edu.vn.muzic.models.Genre;
+import project.qhk.fpt.edu.vn.muzic.models.Playlist;
 import project.qhk.fpt.edu.vn.muzic.models.Song;
 
 /**
@@ -43,6 +44,16 @@ public class RealmManager {
         commitTransaction();
     }
 
+    public void addNewPlaylist(Playlist playlist) {
+        beginTransaction();
+        List<Playlist> alivePlaylist = getRealm().where(Playlist.class)
+                .equalTo(Playlist.FIELD_ALIVE, true)
+                .findAll();
+        playlist.setPlaylistID((alivePlaylist.size() + 1) + "");
+        getRealm().copyToRealm(playlist);
+        commitTransaction();
+    }
+
     public List<Genre> getAliveGenres() {
         return getRealm().where(Genre.class)
                 .equalTo(Genre.FIELD_ALIVE, true)
@@ -63,6 +74,18 @@ public class RealmManager {
         return genreList;
     }
 
+    public List<Playlist> getPlaylist() {
+        List<Playlist> playList = getRealm().where(Playlist.class)
+                .equalTo(Playlist.FIELD_ALIVE, true)
+                .findAll();
+        beginTransaction();
+        for (int i = 0; i < playList.size(); i++) {
+            playList.get(i).setIndex(i);
+        }
+        commitTransaction();
+        return playList;
+    }
+
     public void addSong(Song song) {
         beginTransaction();
         getRealm().copyToRealm(song);
@@ -78,6 +101,13 @@ public class RealmManager {
     public List<Song> getSongs(String genreID) {
         return getRealm().where(Song.class)
                 .equalTo(Song.GENRE_ID, genreID)
+                .equalTo(Song.FIELD_ALIVE, true)
+                .findAll();
+    }
+
+    public List<Song> getSongsOfPlaylist(String playlistId) {
+        return getRealm().where(Song.class)
+                .equalTo(Song.PLAYLIST_ID, playlistId)
                 .equalTo(Song.FIELD_ALIVE, true)
                 .findAll();
     }
@@ -106,6 +136,19 @@ public class RealmManager {
     public void renameGenre(Genre genre, String name) {
         beginTransaction();
         genre.setName(name);
+        commitTransaction();
+    }
+
+    public void removePlaylist(Playlist playlist) {
+        beginTransaction();
+        for (Song song : getSongsOfPlaylist(playlist.getPlaylistID())) song.setPlaylistID("0");
+        playlist.goDie();
+        commitTransaction();
+    }
+
+    public void renamePlaylist(Playlist playlist, String name) {
+        beginTransaction();
+        playlist.setName(name);
         commitTransaction();
     }
 

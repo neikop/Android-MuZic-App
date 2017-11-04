@@ -26,7 +26,7 @@ import project.qhk.fpt.edu.vn.muzic.R;
 import project.qhk.fpt.edu.vn.muzic.adapters.SongAdapter;
 import project.qhk.fpt.edu.vn.muzic.adapters.listeners.RecyclerViewListener;
 import project.qhk.fpt.edu.vn.muzic.managers.RealmManager;
-import project.qhk.fpt.edu.vn.muzic.models.Genre;
+import project.qhk.fpt.edu.vn.muzic.models.Playlist;
 import project.qhk.fpt.edu.vn.muzic.models.Song;
 import project.qhk.fpt.edu.vn.muzic.notifiers.SimpleNotifier;
 import project.qhk.fpt.edu.vn.muzic.notifiers.SongChanger;
@@ -49,7 +49,7 @@ public class FavourSongFragment extends Fragment {
     @BindView(R.id.progress_bar_favour_waiting)
     ProgressBar waitingBar;
 
-    private Genre playlist;
+    private Playlist playlist;
     private List<Song> songList;
 
     private boolean isWaiting;
@@ -59,8 +59,8 @@ public class FavourSongFragment extends Fragment {
     }
 
     public void setPlaylistIndex(int index) {
-        playlist = RealmManager.getInstance().getAlivePlaylist().get(index);
-        songList = RealmManager.getInstance().getSongs(playlist.getGenreID());
+        playlist = RealmManager.getInstance().getPlaylist().get(index);
+        songList = RealmManager.getInstance().getSongs(playlist.getPlaylistID());
     }
 
     @Override
@@ -114,7 +114,7 @@ public class FavourSongFragment extends Fragment {
                     public boolean onMenuItemClick(MenuItem item) {
                         if ("Remove".equals(item.getTitle())) {
                             RealmManager.getInstance().removeFavourSong(songList.get(position));
-                            songList = RealmManager.getInstance().getSongs(playlist.getGenreID());
+                            songList = RealmManager.getInstance().getSongs(playlist.getPlaylistID());
                             recyclerViewSongs.getAdapter().notifyDataSetChanged();
                         }
                         return true;

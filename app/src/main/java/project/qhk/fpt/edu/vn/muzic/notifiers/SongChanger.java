@@ -1,6 +1,7 @@
 package project.qhk.fpt.edu.vn.muzic.notifiers;
 
 import project.qhk.fpt.edu.vn.muzic.models.Genre;
+import project.qhk.fpt.edu.vn.muzic.models.Playlist;
 
 /**
  * Created by WindzLord on 12/2/2016.
@@ -10,11 +11,18 @@ public class SongChanger {
 
     private String target;
     private Genre genre;
+    private Playlist playlist;
     private int indexSong;
 
     public SongChanger(String target, Genre genre, int indexSong) {
         this.target = target;
         this.genre = genre;
+        this.indexSong = indexSong;
+    }
+
+    public SongChanger(String target, Playlist playlist, int indexSong) {
+        this.target = target;
+        this.playlist = playlist;
         this.indexSong = indexSong;
     }
 
@@ -30,4 +38,7 @@ public class SongChanger {
         return indexSong;
     }
 
+    public Playlist getPlaylist() {
+        return playlist;
+    }
 }
