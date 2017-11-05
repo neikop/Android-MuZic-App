@@ -30,24 +30,60 @@ public interface MusicService {
     @POST("/api/user/login")
     Call<LoginResult> getLoginResult(@Body RequestBody account);
 
-    @POST("/api/playlist/getPlaylistByUser")
-    Call<PlaylistResult> getPlaylistByUser(@Body RequestBody token);
-
     @GET("/search/tracks")
     Call<SearchResult> getSearchResult(@Query("client_id") String clientId, @Query("limit") int limit, @Query("q") String query);
 
     @POST("/api/user/register")
     Call<Result> getRegisterResult(@Body RequestBody account);
 
-    @POST("/api/playlist/addToPlaylist")
+    @POST("/api/song/addToPlaylist")
     Call<Result> addToPlaylist(@Body RequestBody account);
+//     Request body truyen len {
+    //      "token": lấy token từ preference,
+//          "playlistId": "",
+//	        "playlistName": "pl of kien3",
+//          "song" : {
+//                  "name": "Tuy Am",
+//                "artist": "Xesi-Masew-NhatNguyen",
+//                "url": "http://f9.stream.nixcdn.com/d5790123e81531bc39b99f4a7669b9d8/59f9874d/NhacCuaTui949/TuyAm-XesiMasewNhatNguyen-5132651.mp3",
+//                "thumbnail": "https://i.ytimg.com/vi/EV-91JV4Fws/maxresdefault.jpg"
+//    }}
+    // nếu add vào1 new playlist thì để trống playlistId và truyền tên mới lên,
+    // nếu add vào playlist có sẵn thì truyền _id của object Playlist vào trường playlistId
 
-    @PUT("/api/playlist/removeFromPlaylist")
+    @PUT("/api/song/removeFromPlaylist")
     Call<Result> removeFromPlaylist(@Body RequestBody account);
+    // Request body truyen len: {
+    //          "playlistId": "59f98651d0a5681b5030113e", _id của Playlist
+	//          "songId": "59f98dbf117ba63578301afd"    _id của Song
+    // }
 
-    @POST("/api/playlist/add")
-    Call<Result> addPlaylist(@Body RequestBody account);
+    @POST("/api/playlist/syncPlaylist")
+    Call<PlaylistResult> syncPlaylist(@Body RequestBody account);
+    // request body truyen len: xem ảnh e gửi
+//    {
+//        "token":,
+    //      "playlists: [
+    //          {
+    //
+    //          }
+    //      ]
+//    }
 
     @PUT("/api/playlist/remove")
     Call<Result> removePlaylist(@Body RequestBody account);
+//    {
+//	"playlistId": "59fe9d239088c93c08e75443"
+//}
+
+    @POST("/api/playlist/rename")
+    Call<Result> renamePlaylist(@Body RequestBody account);
+//    {
+//        "playlistId": "59fe9d239088c93c08e75443",
+//            "playlistName": "moi rename"
+//    }
+
+    @POST("/api/playlist/getPlaylistByUser")
+    Call<PlaylistResult> getPlaylistByUser(@Body RequestBody token);
+    // Request body truyeenf leen : {"token": lay token tu preferences}
 }

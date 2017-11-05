@@ -14,6 +14,7 @@ public class Song extends RealmObject {
     public final static String PLAYLIST_ID = "playlistID";
     public final static String FIELD_ALIVE = "alive";
 
+    private String _id;
     private String genreID;
     private String playlistID;
     private String name;
@@ -61,6 +62,14 @@ public class Song extends RealmObject {
         song.imageLink = entry.getImageLink();
         song.stream = entry.getStream();
         return song;
+    }
+
+    public String get_id() {
+        return _id;
+    }
+
+    public void set_id(String _id) {
+        this._id = _id;
     }
 
     public void setGenreID(String genreID) {
