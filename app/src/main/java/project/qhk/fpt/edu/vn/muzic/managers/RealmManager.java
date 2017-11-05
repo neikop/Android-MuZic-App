@@ -126,6 +126,14 @@ public class RealmManager {
                 .findAll();
     }
 
+    public void clearSongOfPlaylist() {
+        beginTransaction();
+        getRealm().where(Song.class)
+                .beginsWith(Song.PLAYLIST_ID, Genre.TYPE_PLAYLIST)
+                .findAll().deleteAllFromRealm();
+        commitTransaction();
+    }
+
     public void clearTopSong() {
         beginTransaction();
         getRealm().where(Song.class)

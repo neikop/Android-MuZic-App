@@ -32,6 +32,7 @@ import project.qhk.fpt.edu.vn.muzic.R;
 import project.qhk.fpt.edu.vn.muzic.adapters.SongAdapter;
 import project.qhk.fpt.edu.vn.muzic.adapters.listeners.RecyclerViewListener;
 import project.qhk.fpt.edu.vn.muzic.managers.NetworkManager;
+import project.qhk.fpt.edu.vn.muzic.managers.PreferenceManager;
 import project.qhk.fpt.edu.vn.muzic.managers.RealmManager;
 import project.qhk.fpt.edu.vn.muzic.models.Playlist;
 import project.qhk.fpt.edu.vn.muzic.models.Song;
@@ -135,6 +136,7 @@ public class FavourSongFragment extends Fragment {
                                 JsonObject object = new JsonObject();
                                 object.addProperty("playlistId", playlist.get_id());
                                 object.addProperty("songId", songList.get(position).get_id());
+                                object.addProperty("token", PreferenceManager.getInstance().getToken());
 
                                 RequestBody body = RequestBody.create(MediaType.parse("application/json"), object.toString());
 

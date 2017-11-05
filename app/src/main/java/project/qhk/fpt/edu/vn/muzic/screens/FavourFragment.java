@@ -107,6 +107,7 @@ public class FavourFragment extends Fragment {
                                 waitingBar.setVisibility(View.VISIBLE);
                                 JsonObject object = new JsonObject();
                                 object.addProperty("playlistId", RealmManager.getInstance().getAllPlaylist().get(position).get_id());
+                                object.addProperty("token", PreferenceManager.getInstance().getToken());
                                 RequestBody body = RequestBody.create(MediaType.parse("application/json"), object.toString());
 
                                 Retrofit mediaRetrofit = new Retrofit.Builder()
@@ -151,6 +152,8 @@ public class FavourFragment extends Fragment {
                                         JsonObject object = new JsonObject();
                                         object.addProperty("playlistId", RealmManager.getInstance().getAllPlaylist().get(position).get_id());
                                         object.addProperty("playlistName", name);
+                                        object.addProperty("token", PreferenceManager.getInstance().getToken());
+
                                         RequestBody body = RequestBody.create(MediaType.parse("application/json"), object.toString());
 
                                         Retrofit mediaRetrofit = new Retrofit.Builder()

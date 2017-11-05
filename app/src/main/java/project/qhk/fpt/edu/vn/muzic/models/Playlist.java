@@ -1,6 +1,8 @@
 package project.qhk.fpt.edu.vn.muzic.models;
 
 import io.realm.RealmObject;
+import project.qhk.fpt.edu.vn.muzic.Logistic;
+import project.qhk.fpt.edu.vn.muzic.managers.RealmManager;
 
 /**
  * Created by QuangTM on 03/11/2017.
@@ -18,6 +20,7 @@ public class Playlist extends RealmObject{
 
     public static Playlist createPlaylist(String name) {
         Playlist playlist = new Playlist(name);
+        playlist.setPlaylistID(Logistic.PLAYLIST + (RealmManager.getInstance().getAllPlaylist().size() + 1));
         return playlist;
     }
 

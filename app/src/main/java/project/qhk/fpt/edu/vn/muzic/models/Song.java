@@ -65,6 +65,7 @@ public class Song extends RealmObject {
     public static Song createForPlaylist(String playlistID, Song entry) {
         Song song = new Song();
         song.setPlaylistID(playlistID);
+        song._id = entry.get_id();
         song.name = entry.getName();
         song.artist = entry.getArtist();
         song.imageLink = entry.getImageLink();
