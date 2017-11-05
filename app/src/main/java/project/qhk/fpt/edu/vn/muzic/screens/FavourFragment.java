@@ -33,7 +33,6 @@ import project.qhk.fpt.edu.vn.muzic.adapters.listeners.RecyclerViewListener;
 import project.qhk.fpt.edu.vn.muzic.managers.NetworkManager;
 import project.qhk.fpt.edu.vn.muzic.managers.PreferenceManager;
 import project.qhk.fpt.edu.vn.muzic.managers.RealmManager;
-import project.qhk.fpt.edu.vn.muzic.models.api_models.LoginResult;
 import project.qhk.fpt.edu.vn.muzic.models.api_models.Result;
 import project.qhk.fpt.edu.vn.muzic.notifiers.FragmentChanger;
 import project.qhk.fpt.edu.vn.muzic.notifiers.SimpleNotifier;
@@ -78,6 +77,7 @@ public class FavourFragment extends Fragment {
     }
 
     private void goContent() {
+        waitingBar.setVisibility(View.INVISIBLE);
         recyclerViewPlaylist.setLayoutManager(new LinearLayoutManager(
                 getActivity(), LinearLayoutManager.VERTICAL, false));
         recyclerViewPlaylist.setAdapter(new PlaylistAdapter());
@@ -103,7 +103,7 @@ public class FavourFragment extends Fragment {
                     public boolean onMenuItemClick(MenuItem item) {
                         if ("Remove".equals(item.getTitle())) {
                             RealmManager.getInstance().removePlaylist(RealmManager.getInstance().getAllPlaylist().get(position));
-                            if (NetworkManager.getInstance().isConnectedToInternet()){
+                            if (NetworkManager.getInstance().isConnectedToInternet() && !PreferenceManager.getInstance().getToken().isEmpty()){
                                 waitingBar.setVisibility(View.VISIBLE);
                                 JsonObject object = new JsonObject();
                                 object.addProperty("playlistId", RealmManager.getInstance().getAllPlaylist().get(position).get_id());
@@ -147,7 +147,7 @@ public class FavourFragment extends Fragment {
 
                                     RealmManager.getInstance().renamePlaylist(RealmManager.getInstance().getAllPlaylist().get(position), name);
 
-                                    if (NetworkManager.getInstance().isConnectedToInternet()){
+                                    if (NetworkManager.getInstance().isConnectedToInternet()  && !PreferenceManager.getInstance().getToken().isEmpty()){
                                         waitingBar.setVisibility(View.VISIBLE);
                                         JsonObject object = new JsonObject();
                                         object.addProperty("playlistId", RealmManager.getInstance().getAllPlaylist().get(position).get_id());

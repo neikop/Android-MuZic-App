@@ -131,7 +131,7 @@ public class FavourSongFragment extends Fragment {
                     public boolean onMenuItemClick(MenuItem item) {
                         if ("Remove".equals(item.getTitle())) {
 
-                            if (NetworkManager.getInstance().isConnectedToInternet()){
+                            if (NetworkManager.getInstance().isConnectedToInternet()  && !PreferenceManager.getInstance().getToken().isEmpty()){
                                 waitingBar.setVisibility(View.VISIBLE);
                                 JsonObject object = new JsonObject();
                                 object.addProperty("playlistId", playlist.get_id());

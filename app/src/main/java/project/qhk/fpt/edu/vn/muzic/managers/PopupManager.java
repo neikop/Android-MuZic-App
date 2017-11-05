@@ -27,8 +27,10 @@ import project.qhk.fpt.edu.vn.muzic.models.UpdateRealmId;
 import project.qhk.fpt.edu.vn.muzic.models.api_models.AddToPlaylistResult;
 import project.qhk.fpt.edu.vn.muzic.models.api_models.LocalAddJSON;
 import project.qhk.fpt.edu.vn.muzic.notifiers.SimpleNotifier;
+import project.qhk.fpt.edu.vn.muzic.notifiers.WaitingChanger;
 import project.qhk.fpt.edu.vn.muzic.screens.FavourFragment;
 import project.qhk.fpt.edu.vn.muzic.screens.FavourSongFragment;
+import project.qhk.fpt.edu.vn.muzic.screens.PlayerFragment;
 import project.qhk.fpt.edu.vn.muzic.services.MusicService;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -86,12 +88,45 @@ public class PopupManager {
 
                 Playlist playlist = Playlist.createPlaylist(title);
                 Song addedSong = Song.createForPlaylist(playlist.getPlaylistID(), MusicPlayer.getInstance().getSong());
-                UpdateRealmId updateRealmId = syncToServer(playlist.get_id() == null ? "" : playlist.get_id(), title, addedSong);
-                playlist.set_id(updateRealmId.getPlaylistId());
-                addedSong.set_id(updateRealmId.getSongId());
-                RealmManager.getInstance().addNewPlaylist(playlist);
-                RealmManager.getInstance().addSong(addedSong);
 
+                if (NetworkManager.getInstance().isConnectedToInternet() && !PreferenceManager.getInstance().getToken().isEmpty()){
+                    EventBus.getDefault().post(new WaitingChanger(PlayerFragment.class.getSimpleName(), true));
+                    LocalAddJSON localAddJSON = new LocalAddJSON(playlist.get_id() == null ? "" : playlist.get_id(), title, addedSong);
+                    Gson gson= new GsonBuilder().setPrettyPrinting().create();
+                    String requestJSON = gson.toJson(localAddJSON, localAddJSON.getClass());
+                    System.out.println(requestJSON);
+
+                    RequestBody body = RequestBody.create(MediaType.parse("application/json"), requestJSON);
+
+                    Retrofit mediaRetrofit = new Retrofit.Builder()
+                            .baseUrl(Logistic.SERVER_API)
+                            .addConverterFactory(GsonConverterFactory.create())
+                            .build();
+                    MusicService musicService = mediaRetrofit.create(MusicService.class);
+                    musicService.addToPlaylist(body).enqueue(new Callback<AddToPlaylistResult>() {
+                        @Override
+                        public void onResponse(Call<AddToPlaylistResult> call, Response<AddToPlaylistResult> response) {
+                            AddToPlaylistResult result = response.body();
+                            if (result.isSuccess()) {
+                                System.out.println("Success Add to Server");
+                                playlist.set_id(result.getPlaylistId());
+                                addedSong.set_id(result.getSongId());
+                                RealmManager.getInstance().addNewPlaylist(playlist);
+                                RealmManager.getInstance().addSong(addedSong);
+                            }
+                            EventBus.getDefault().post(new WaitingChanger(PlayerFragment.class.getSimpleName(), false));
+                        }
+
+                        @Override
+                        public void onFailure(Call<AddToPlaylistResult> call, Throwable t) {
+                            EventBus.getDefault().post(new WaitingChanger(PlayerFragment.class.getSimpleName(), false));
+                            System.out.println("failure");
+                        }
+                    });
+                } else {
+                    RealmManager.getInstance().addNewPlaylist(playlist);
+                    RealmManager.getInstance().addSong(addedSong);
+                }
 
                 Toast.makeText(context, "Add to " + title, Toast.LENGTH_SHORT).show();
             }
@@ -107,9 +142,42 @@ public class PopupManager {
     private void addToPlaylist(Context context, int indexList) {
         Playlist playlist = RealmManager.getInstance().getAllPlaylist().get(indexList);
         Song addedSong = Song.createForPlaylist(playlist.getPlaylistID(), MusicPlayer.getInstance().getSong());
-        UpdateRealmId updateRealmId = syncToServer(playlist.get_id() == null ? "" : playlist.get_id(), playlist.getName(), addedSong);
-        addedSong.set_id(updateRealmId.getSongId());
-        RealmManager.getInstance().addSong(addedSong);
+
+        if (NetworkManager.getInstance().isConnectedToInternet()  && !PreferenceManager.getInstance().getToken().isEmpty()){
+            EventBus.getDefault().post(new WaitingChanger(PlayerFragment.class.getSimpleName(), true));
+            LocalAddJSON localAddJSON = new LocalAddJSON(playlist.get_id() == null ? "" : playlist.get_id(), playlist.getName(), addedSong);
+            Gson gson= new GsonBuilder().setPrettyPrinting().create();
+            String requestJSON = gson.toJson(localAddJSON, localAddJSON.getClass());
+            System.out.println(requestJSON);
+
+            RequestBody body = RequestBody.create(MediaType.parse("application/json"), requestJSON);
+
+            Retrofit mediaRetrofit = new Retrofit.Builder()
+                    .baseUrl(Logistic.SERVER_API)
+                    .addConverterFactory(GsonConverterFactory.create())
+                    .build();
+            MusicService musicService = mediaRetrofit.create(MusicService.class);
+            musicService.addToPlaylist(body).enqueue(new Callback<AddToPlaylistResult>() {
+                @Override
+                public void onResponse(Call<AddToPlaylistResult> call, Response<AddToPlaylistResult> response) {
+                    AddToPlaylistResult result = response.body();
+                    if (result.isSuccess()) {
+                        System.out.println("Success Add to Server");
+                        addedSong.set_id(result.getSongId());
+                        RealmManager.getInstance().addSong(addedSong);
+                    }
+                    EventBus.getDefault().post(new WaitingChanger(PlayerFragment.class.getSimpleName(), false));
+                }
+
+                @Override
+                public void onFailure(Call<AddToPlaylistResult> call, Throwable t) {
+                    System.out.println("failure");
+                    EventBus.getDefault().post(new WaitingChanger(PlayerFragment.class.getSimpleName(), false));
+                }
+            });
+        } else {
+            RealmManager.getInstance().addSong(addedSong);
+        }
 
         Toast.makeText(context, "Add to " + playlist.getName(), Toast.LENGTH_SHORT).show();
     }
@@ -130,40 +198,5 @@ public class PopupManager {
 
     public void addItem(int index, String title) {
         popup.getMenu().add(0, index, 0, title);
-    }
-
-    private UpdateRealmId syncToServer(String playlistId, String playListTitle, Song addedSong){
-        UpdateRealmId updateRealmId = new UpdateRealmId();
-        if (NetworkManager.getInstance().isConnectedToInternet()){
-            LocalAddJSON localAddJSON = new LocalAddJSON(playlistId, playListTitle, addedSong);
-            Gson gson= new GsonBuilder().setPrettyPrinting().create();
-            String requestJSON = gson.toJson(localAddJSON, localAddJSON.getClass());
-            System.out.println(requestJSON);
-
-            RequestBody body = RequestBody.create(MediaType.parse("application/json"), requestJSON);
-
-            Retrofit mediaRetrofit = new Retrofit.Builder()
-                    .baseUrl(Logistic.SERVER_API)
-                    .addConverterFactory(GsonConverterFactory.create())
-                    .build();
-            MusicService musicService = mediaRetrofit.create(MusicService.class);
-            musicService.addToPlaylist(body).enqueue(new Callback<AddToPlaylistResult>() {
-                @Override
-                public void onResponse(Call<AddToPlaylistResult> call, Response<AddToPlaylistResult> response) {
-                    AddToPlaylistResult result = response.body();
-                    if (result.isSuccess()) {
-                        System.out.println("Success Add to Server");
-                        updateRealmId.setPlaylistId(result.getPlaylistId());
-                        updateRealmId.setSongId(result.getSongId());
-                    }
-                }
-
-                @Override
-                public void onFailure(Call<AddToPlaylistResult> call, Throwable t) {
-                    System.out.println("failure");
-                }
-            });
-        }
-        return updateRealmId;
     }
 }

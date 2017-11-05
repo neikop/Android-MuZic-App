@@ -166,7 +166,7 @@ public class LoginFragment extends Fragment {
                 if (result.isSuccess()) {
                     PreferenceManager.getInstance().login(result.getName(), result.getToken(), result.getUser().getName(), result.getUser().getEmail());
 
-                    if (NetworkManager.getInstance().isConnectedToInternet()){
+                    if (NetworkManager.getInstance().isConnectedToInternet()  && !PreferenceManager.getInstance().getToken().isEmpty()){
                         waitingBar.setVisibility(View.VISIBLE);
                         if (RealmManager.getInstance().getAllPlaylist().size() == 0) {
                             JsonObject object = new JsonObject();

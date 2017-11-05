@@ -302,7 +302,7 @@
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
                 android:layout_toRightOf="@id/logout_button_back"
-                android:text="User Accont"
+                android:text="User Account"
                 android:textColor="@color/colorWhite" />
 
         </RelativeLayout>
