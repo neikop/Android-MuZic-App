@@ -55,7 +55,7 @@ public class Song extends RealmObject {
 
     public static Song createForPlaylist(String playlistID, Song entry) {
         Song song = new Song();
-        song.playlistID = playlistID;
+        song.setPlaylistID(playlistID);
         song.name = entry.getName();
         song.artist = entry.getArtist();
         song.imageLink = entry.getImageLink();
@@ -69,6 +69,10 @@ public class Song extends RealmObject {
 
     public void setPlaylistID(String playlistID) {
         this.playlistID = playlistID;
+    }
+
+    public String getPlaylistID() {
+        return playlistID != null ? this.playlistID : "";
     }
 
     public String getName() {

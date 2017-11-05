@@ -24,11 +24,11 @@ public class PlaylistAdapter extends RecyclerView.Adapter<PlaylistViewHolder> {
 
     @Override
     public void onBindViewHolder(PlaylistViewHolder holder, int position) {
-        holder.bind(RealmManager.getInstance().getPlaylist().get(position));
+        holder.bind(RealmManager.getInstance().getAllPlaylist().get(position));
     }
 
     @Override
     public int getItemCount() {
-        return RealmManager.getInstance().getPlaylist().size();
+        return RealmManager.getInstance().getAllPlaylist().size();
     }
 }

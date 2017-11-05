@@ -59,8 +59,10 @@ public class FavourSongFragment extends Fragment {
     }
 
     public void setPlaylistIndex(int index) {
-        playlist = RealmManager.getInstance().getPlaylist().get(index);
-        songList = RealmManager.getInstance().getSongs(playlist.getPlaylistID());
+        playlist = RealmManager.getInstance().getAllPlaylist().get(index);
+        songList = RealmManager.getInstance().getSongsOfPlaylist(playlist.getPlaylistID());
+        System.out.println("playlist id : "+playlist.getPlaylistID());
+        System.out.println("songlist size: "+songList.size());
     }
 
     @Override

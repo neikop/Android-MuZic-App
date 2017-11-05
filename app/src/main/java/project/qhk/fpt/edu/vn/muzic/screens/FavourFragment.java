@@ -82,7 +82,7 @@ public class FavourFragment extends Fragment {
                 popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
                     public boolean onMenuItemClick(MenuItem item) {
                         if ("Remove".equals(item.getTitle())) {
-                            RealmManager.getInstance().removePlaylist(RealmManager.getInstance().getPlaylist().get(position));
+                            RealmManager.getInstance().removePlaylist(RealmManager.getInstance().getAllPlaylist().get(position));
                             recyclerViewPlaylist.getAdapter().notifyDataSetChanged();
                         }
                         if ("Rename".equals(item.getTitle())) {
@@ -98,7 +98,7 @@ public class FavourFragment extends Fragment {
                                     String name = input.getText().toString().trim();
                                     if (name.isEmpty()) name = "Empty name";
 
-                                    RealmManager.getInstance().renamePlaylist(RealmManager.getInstance().getPlaylist().get(position), name);
+                                    RealmManager.getInstance().renamePlaylist(RealmManager.getInstance().getAllPlaylist().get(position), name);
                                     recyclerViewPlaylist.getAdapter().notifyDataSetChanged();
                                 }
                             }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {

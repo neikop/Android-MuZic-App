@@ -69,7 +69,7 @@ public class PopupManager {
 
                 Playlist playlist = Playlist.createPlaylist(title);
                 RealmManager.getInstance().addNewPlaylist(playlist);
-                RealmManager.getInstance().addSong(Song.create(playlist.getPlaylistID(), MusicPlayer.getInstance().getSong()));
+                RealmManager.getInstance().addSong(Song.createForPlaylist(playlist.getPlaylistID(), MusicPlayer.getInstance().getSong()));
 
                 Toast.makeText(context, "Add to " + title, Toast.LENGTH_SHORT).show();
             }
@@ -83,8 +83,8 @@ public class PopupManager {
     }
 
     private void addToPlaylist(Context context, int indexList) {
-        Playlist playlist = RealmManager.getInstance().getPlaylist().get(indexList);
-        RealmManager.getInstance().addSong(Song.create(playlist.getPlaylistID(), MusicPlayer.getInstance().getSong()));
+        Playlist playlist = RealmManager.getInstance().getAllPlaylist().get(indexList);
+        RealmManager.getInstance().addSong(Song.createForPlaylist(playlist.getPlaylistID(), MusicPlayer.getInstance().getSong()));
 
         Toast.makeText(context, "Add to " + playlist.getName(), Toast.LENGTH_SHORT).show();
     }
@@ -93,7 +93,7 @@ public class PopupManager {
         popup.getMenu().clear();
         int index = -1;
         addItem(index++);
-        for (Playlist playlist : RealmManager.getInstance().getPlaylist()) {
+        for (Playlist playlist : RealmManager.getInstance().getAllPlaylist()) {
             addItem(index++, playlist.getName());
         }
         popup.show();

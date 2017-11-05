@@ -49,7 +49,7 @@ public class RealmManager {
         List<Playlist> alivePlaylist = getRealm().where(Playlist.class)
                 .equalTo(Playlist.FIELD_ALIVE, true)
                 .findAll();
-        playlist.setPlaylistID((alivePlaylist.size() + 1) + "");
+        playlist.setPlaylistID("PLAYLIST"+(alivePlaylist.size() + 1));
         getRealm().copyToRealm(playlist);
         commitTransaction();
     }
@@ -74,7 +74,7 @@ public class RealmManager {
         return genreList;
     }
 
-    public List<Playlist> getPlaylist() {
+    public List<Playlist> getAllPlaylist() {
         List<Playlist> playList = getRealm().where(Playlist.class)
                 .equalTo(Playlist.FIELD_ALIVE, true)
                 .findAll();
@@ -88,6 +88,7 @@ public class RealmManager {
 
     public void addSong(Song song) {
         beginTransaction();
+        System.out.println("playlist id: " + song.getPlaylistID());
         getRealm().copyToRealm(song);
         commitTransaction();
     }
@@ -115,7 +116,7 @@ public class RealmManager {
     public void clearTopSong() {
         beginTransaction();
         getRealm().where(Song.class)
-                .not().beginsWith(Song.GENRE_ID, Genre.TYPE_PLAYLIST)
+                .not().beginsWith(Song.PLAYLIST_ID, Genre.TYPE_PLAYLIST)
                 .findAll().deleteAllFromRealm();
         commitTransaction();
     }

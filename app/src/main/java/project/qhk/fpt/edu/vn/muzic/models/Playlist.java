@@ -17,9 +17,7 @@ public class Playlist extends RealmObject{
     private boolean alive;
 
     public static Playlist createPlaylist(String name) {
-        Playlist playlist = new Playlist();
-        playlist.setName(name);
-        playlist.alive = true;
+        Playlist playlist = new Playlist(name);
         return playlist;
     }
 
