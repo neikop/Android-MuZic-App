@@ -27,6 +27,10 @@ public class PlaylistResult {
         return success;
     }
 
+    public ArrayList<Playlist> getPlaylists() {
+        return playlists;
+    }
+
     public class Playlist {
         @SerializedName("_id")
         private String id;

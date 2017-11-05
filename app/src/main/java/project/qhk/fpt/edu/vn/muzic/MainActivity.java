@@ -198,6 +198,7 @@ public class MainActivity extends AppCompatActivity {
                     changeWaiting(false);
                 } else {
                     RealmManager.getInstance().editSongPicture(song, mp3song.getPicture());
+                    RealmManager.getInstance().editSongStream(song, mp3song.getStream());
                     MusicPlayer.getInstance().prepare(getApplicationContext(), mp3song.getStream(), song);
                 }
             }

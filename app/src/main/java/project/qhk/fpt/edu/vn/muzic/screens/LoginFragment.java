@@ -29,9 +29,12 @@ import okhttp3.RequestBody;
 import project.qhk.fpt.edu.vn.muzic.Logistic;
 import project.qhk.fpt.edu.vn.muzic.MainActivity;
 import project.qhk.fpt.edu.vn.muzic.R;
+import project.qhk.fpt.edu.vn.muzic.managers.MusicPlayer;
 import project.qhk.fpt.edu.vn.muzic.managers.NetworkManager;
 import project.qhk.fpt.edu.vn.muzic.managers.PreferenceManager;
 import project.qhk.fpt.edu.vn.muzic.managers.RealmManager;
+import project.qhk.fpt.edu.vn.muzic.models.Playlist;
+import project.qhk.fpt.edu.vn.muzic.models.Song;
 import project.qhk.fpt.edu.vn.muzic.models.api_models.LocalSyncJSON;
 import project.qhk.fpt.edu.vn.muzic.models.api_models.LoginResult;
 import project.qhk.fpt.edu.vn.muzic.models.api_models.PlaylistResult;
@@ -148,9 +151,9 @@ public class LoginFragment extends Fragment {
                         waitingBar.setVisibility(View.VISIBLE);
                         LocalSyncJSON localSyncJSON = new LocalSyncJSON();
                         Gson gson= new GsonBuilder().setPrettyPrinting().create();
-                        String JSON= gson.toJson(localSyncJSON, localSyncJSON.getClass());
+                        String requestJSON = gson.toJson(localSyncJSON, localSyncJSON.getClass());
                         try {
-                            JSONObject request = new JSONObject(JSON);
+                            JSONObject request = new JSONObject(requestJSON);
 
                             RequestBody body = RequestBody.create(MediaType.parse("application/json"), request.toString());
 
@@ -166,15 +169,26 @@ public class LoginFragment extends Fragment {
                                     if (result.isSuccess()) {
                                         Toast.makeText(getContext(), result.getMessage(), Toast.LENGTH_SHORT).show();
                                         RealmManager.getInstance().clearAllPlaylist();
-
+                                        for (PlaylistResult.Playlist returnPlaylist : result.getPlaylists()) {
+                                            Playlist playlist = Playlist.createPlaylist(returnPlaylist.getName());
+                                            playlist.set_id(returnPlaylist.getId());
+                                            RealmManager.getInstance().addNewPlaylist(playlist);
+                                            for (PlaylistResult.Playlist.Song returnSong: returnPlaylist.getSongList()){
+                                                Song song = Song.createForPlaylist(playlist.getPlaylistID(),
+                                                        new Song(returnSong.getId(),
+                                                                returnSong.getName(),
+                                                                returnSong.getArtist(),
+                                                                returnSong.getThumbnail(),
+                                                                returnSong.getStream()));
+                                                RealmManager.getInstance().addSong(Song.createForPlaylist(playlist.getPlaylistID(), song));
+                                            }
+                                        }
                                     }
-                                    waitingBar.setVisibility(View.INVISIBLE);
                                 }
 
                                 @Override
                                 public void onFailure(Call<PlaylistResult> call, Throwable t) {
                                     Toast.makeText(getContext(), "SYNC FAILURE", Toast.LENGTH_SHORT).show();
-                                    waitingBar.setVisibility(View.INVISIBLE);
                                 }
                             });
                         } catch (JSONException e) {

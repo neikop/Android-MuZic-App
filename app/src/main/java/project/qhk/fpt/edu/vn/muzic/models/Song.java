@@ -27,6 +27,14 @@ public class Song extends RealmObject {
     public Song() {
     }
 
+    public Song(String _id, String name, String artist, String imageLink, String stream) {
+        this._id = _id;
+        this.name = name;
+        this.artist = artist;
+        this.imageLink = imageLink;
+        this.stream = stream;
+    }
+
     public Song(SearchResult.SearchSong searchSong) {
         this.name = searchSong.getTitle();
         this.artist = "";
@@ -110,5 +118,9 @@ public class Song extends RealmObject {
 
     public void goDie() {
         alive = false;
+    }
+
+    public void setStream(String stream) {
+        this.stream = stream;
     }
 }

@@ -106,6 +106,12 @@ public class RealmManager {
         commitTransaction();
     }
 
+    public void editSongStream(Song song, String stream) {
+        beginTransaction();
+        song.setStream(stream);
+        commitTransaction();
+    }
+
     public List<Song> getSongs(String genreID) {
         return getRealm().where(Song.class)
                 .equalTo(Song.GENRE_ID, genreID)
