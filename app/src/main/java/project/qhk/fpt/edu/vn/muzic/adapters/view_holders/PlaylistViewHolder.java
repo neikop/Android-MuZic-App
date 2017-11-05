@@ -8,7 +8,7 @@ import android.widget.TextView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import project.qhk.fpt.edu.vn.muzic.R;
-import project.qhk.fpt.edu.vn.muzic.models.Genre;
+import project.qhk.fpt.edu.vn.muzic.models.Playlist;
 
 /**
  * Created by WindzLord on 11/2/2017.
@@ -27,7 +27,7 @@ public class PlaylistViewHolder extends RecyclerView.ViewHolder {
         ButterKnife.bind(this, itemView);
     }
 
-    public void bind(Genre playlist) {
+    public void bind(Playlist playlist) {
         textViewName.setText(playlist.getName());
         textViewNumber.setText("" + (playlist.getIndex() + 1));
     }

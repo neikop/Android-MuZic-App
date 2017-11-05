@@ -13,7 +13,7 @@ import android.widget.Toast;
 import org.greenrobot.eventbus.EventBus;
 
 import project.qhk.fpt.edu.vn.muzic.R;
-import project.qhk.fpt.edu.vn.muzic.models.Genre;
+import project.qhk.fpt.edu.vn.muzic.models.Playlist;
 import project.qhk.fpt.edu.vn.muzic.models.Song;
 import project.qhk.fpt.edu.vn.muzic.notifiers.SimpleNotifier;
 import project.qhk.fpt.edu.vn.muzic.screens.FavourFragment;
@@ -67,9 +67,9 @@ public class PopupManager {
                 String title = input.getText().toString().trim();
                 if (title.isEmpty()) title = "Empty name";
 
-                Genre playlist = Genre.createPlaylist(title);
-                RealmManager.getInstance().addPlaylist(playlist);
-                RealmManager.getInstance().addSong(Song.create(playlist.getGenreID(), MusicPlayer.getInstance().getSong()));
+                Playlist playlist = Playlist.createPlaylist(title);
+                RealmManager.getInstance().addNewPlaylist(playlist);
+                RealmManager.getInstance().addSong(Song.createForPlaylist(playlist.getPlaylistID(), MusicPlayer.getInstance().getSong()));
 
                 Toast.makeText(context, "Add to " + title, Toast.LENGTH_SHORT).show();
             }
@@ -83,8 +83,8 @@ public class PopupManager {
     }
 
     private void addToPlaylist(Context context, int indexList) {
-        Genre playlist = RealmManager.getInstance().getAlivePlaylist().get(indexList);
-        RealmManager.getInstance().addSong(Song.create(playlist.getGenreID(), MusicPlayer.getInstance().getSong()));
+        Playlist playlist = RealmManager.getInstance().getAllPlaylist().get(indexList);
+        RealmManager.getInstance().addSong(Song.createForPlaylist(playlist.getPlaylistID(), MusicPlayer.getInstance().getSong()));
 
         Toast.makeText(context, "Add to " + playlist.getName(), Toast.LENGTH_SHORT).show();
     }
@@ -93,7 +93,7 @@ public class PopupManager {
         popup.getMenu().clear();
         int index = -1;
         addItem(index++);
-        for (Genre playlist : RealmManager.getInstance().getAlivePlaylist()) {
+        for (Playlist playlist : RealmManager.getInstance().getAllPlaylist()) {
             addItem(index++, playlist.getName());
         }
         popup.show();

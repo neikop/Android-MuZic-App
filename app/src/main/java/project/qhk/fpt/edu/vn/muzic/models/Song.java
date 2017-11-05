@@ -11,9 +11,12 @@ import project.qhk.fpt.edu.vn.muzic.models.api_models.SearchResult;
 public class Song extends RealmObject {
 
     public final static String GENRE_ID = "genreID";
+    public final static String PLAYLIST_ID = "playlistID";
     public final static String FIELD_ALIVE = "alive";
 
+    private String _id;
     private String genreID;
+    private String playlistID;
     private String name;
     private String artist;
     private String imageLink;
@@ -51,8 +54,34 @@ public class Song extends RealmObject {
         return song;
     }
 
+    public static Song createForPlaylist(String playlistID, Song entry) {
+        Song song = new Song();
+        song.setPlaylistID(playlistID);
+        song.name = entry.getName();
+        song.artist = entry.getArtist();
+        song.imageLink = entry.getImageLink();
+        song.stream = entry.getStream();
+        return song;
+    }
+
+    public String get_id() {
+        return _id;
+    }
+
+    public void set_id(String _id) {
+        this._id = _id;
+    }
+
     public void setGenreID(String genreID) {
         this.genreID = genreID;
+    }
+
+    public void setPlaylistID(String playlistID) {
+        this.playlistID = playlistID;
+    }
+
+    public String getPlaylistID() {
+        return playlistID != null ? this.playlistID : "";
     }
 
     public String getName() {

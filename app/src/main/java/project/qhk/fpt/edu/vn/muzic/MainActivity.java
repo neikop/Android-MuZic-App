@@ -24,6 +24,7 @@ import butterknife.OnClick;
 import project.qhk.fpt.edu.vn.muzic.managers.MusicPlayer;
 import project.qhk.fpt.edu.vn.muzic.managers.RealmManager;
 import project.qhk.fpt.edu.vn.muzic.models.Genre;
+import project.qhk.fpt.edu.vn.muzic.models.Playlist;
 import project.qhk.fpt.edu.vn.muzic.models.Song;
 import project.qhk.fpt.edu.vn.muzic.models.api_models.SongMp3;
 import project.qhk.fpt.edu.vn.muzic.notifiers.FragmentChanger;
@@ -71,10 +72,12 @@ public class MainActivity extends AppCompatActivity {
      */
 
     private Genre genre;
+    private Playlist playlist;
     private Song song;
     private int indexSong;
     private boolean isPlaying;
     private boolean isWaiting;
+    private boolean isPlayingGenre;
     private boolean isSyncing = false;
     private CountDownTimer countDownTimer;
     private int remainTime;
@@ -151,15 +154,25 @@ public class MainActivity extends AppCompatActivity {
     public void onSongEvent(SongChanger event) {
         if (!this.getClass().getSimpleName().equals(event.getTarget())) return;
 
-        genre = event.getGenre();
-        if (RealmManager.getInstance().getSongs(genre.getGenreID()).isEmpty()) return;
-
-        prePlay(event.getIndexSong());
+        if (event.getGenre() != null){
+            genre = event.getGenre();
+            if (RealmManager.getInstance().getSongs(genre.getGenreID()).isEmpty()) return;
+            isPlayingGenre = true;
+            prePlay(event.getIndexSong(), true);
+        } else {
+            playlist = event.getPlaylist();
+            if (RealmManager.getInstance().getSongsOfPlaylist(playlist.getPlaylistID()).isEmpty()) return;
+            isPlayingGenre = false;
+            prePlay(event.getIndexSong(), false);
+        }
     }
 
-    private void prePlay(int indexSong) {
+    private void prePlay(int indexSong, boolean isPlayGenre) {
         this.indexSong = indexSong;
-        song = RealmManager.getInstance().getSongs(genre.getGenreID()).get(indexSong);
+        if (isPlayGenre)
+            song = RealmManager.getInstance().getSongs(genre.getGenreID()).get(indexSong);
+        else
+            song = RealmManager.getInstance().getSongsOfPlaylist(playlist.getPlaylistID()).get(indexSong);
         String search = song.getName() + " - " + song.getArtist();
         System.out.println("searching " + search);
 
@@ -243,18 +256,33 @@ public class MainActivity extends AppCompatActivity {
 
     public void goNextSong() {
         if (isWaiting) return;
-        if (RealmManager.getInstance().getSongs(genre.getGenreID()).isEmpty()) return;
+        if (isPlayingGenre) {
+            if (RealmManager.getInstance().getSongs(genre.getGenreID()).isEmpty()) return;
 
-        int number = RealmManager.getInstance().getSongs(genre.getGenreID()).size();
-        prePlay(++indexSong % number);
+            int number = RealmManager.getInstance().getSongs(genre.getGenreID()).size();
+            prePlay(++indexSong % number, true);
+        } else {
+            if (RealmManager.getInstance().getSongsOfPlaylist(playlist.getPlaylistID()).isEmpty()) return;
+
+            int number = RealmManager.getInstance().getSongsOfPlaylist(playlist.getPlaylistID()).size();
+            prePlay(++indexSong % number, true);
+        }
     }
 
     public void goPreviousSong() {
         if (isWaiting) return;
-        if (RealmManager.getInstance().getSongs(genre.getGenreID()).isEmpty()) return;
+        if (isPlayingGenre) {
+            if (RealmManager.getInstance().getSongs(genre.getGenreID()).isEmpty()) return;
 
-        int number = RealmManager.getInstance().getSongs(genre.getGenreID()).size();
-        prePlay((indexSong + number - 1) % number);
+            int number = RealmManager.getInstance().getSongs(genre.getGenreID()).size();
+            prePlay((indexSong + number - 1) % number, true);
+        } else {
+            if (RealmManager.getInstance().getSongsOfPlaylist(playlist.getPlaylistID()).isEmpty()) return;
+
+            int number = RealmManager.getInstance().getSongsOfPlaylist(playlist.getPlaylistID()).size();
+            prePlay((indexSong + number - 1) % number, true);
+        }
+
     }
 
     private void countDownTimerCancel(long millisInFuture) {
