@@ -6,8 +6,6 @@ import android.os.CountDownTimer;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -24,7 +22,6 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import project.qhk.fpt.edu.vn.muzic.managers.MusicPlayer;
-import project.qhk.fpt.edu.vn.muzic.managers.PreferenceManager;
 import project.qhk.fpt.edu.vn.muzic.managers.RealmManager;
 import project.qhk.fpt.edu.vn.muzic.models.Genre;
 import project.qhk.fpt.edu.vn.muzic.models.Song;
@@ -69,7 +66,6 @@ public class MainActivity extends AppCompatActivity {
     ImageView cuteImageButtonGo;
     Song playingSong;
 
-    private MenuItem itemHello;
     /**
      * PLAYER ================================================================================
      */
@@ -98,6 +94,7 @@ public class MainActivity extends AppCompatActivity {
 
         goContent();
     }
+
 
     private void goContent() {
         openFragment(this.getClass().getSimpleName(), new SettingFragment(), false);
@@ -348,18 +345,5 @@ public class MainActivity extends AppCompatActivity {
             cuteSongImage.clearAnimation();
         }
         setLayoutDaddy(View.VISIBLE);
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        itemHello = menu.getItem(R.id.action_search);
-        String userName = PreferenceManager.getInstance().getUsername();
-        if (!userName.isEmpty()) {
-            System.out.println("Live");
-        } else {
-            itemHello.setIcon(R.drawable.ic_perm_identity_white_48px);
-        }
-        return super.onCreateOptionsMenu(menu);
     }
 }
