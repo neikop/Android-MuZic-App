@@ -1,6 +1,7 @@
 package project.qhk.fpt.edu.vn.muzic.services;
 
 import okhttp3.RequestBody;
+import project.qhk.fpt.edu.vn.muzic.models.api_models.AddToPlaylistResult;
 import project.qhk.fpt.edu.vn.muzic.models.api_models.LoginResult;
 import project.qhk.fpt.edu.vn.muzic.models.api_models.MediaFeed;
 import project.qhk.fpt.edu.vn.muzic.models.api_models.PlaylistResult;
@@ -37,7 +38,7 @@ public interface MusicService {
     Call<Result> getRegisterResult(@Body RequestBody account);
 
     @POST("/api/song/addToPlaylist")
-    Call<Result> addToPlaylist(@Body RequestBody account);
+    Call<AddToPlaylistResult> addToPlaylist(@Body RequestBody account);
 //     Request body truyen len {
     //      "token": lấy token từ preference,
 //          "playlistId": "",

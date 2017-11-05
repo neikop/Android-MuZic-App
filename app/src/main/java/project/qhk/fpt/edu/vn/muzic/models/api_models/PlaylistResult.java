@@ -63,7 +63,7 @@ public class PlaylistResult {
             private String thumbnail;
 
             @SerializedName("artist")
-            private Artist artist;
+            private String artist;
 
             public String getId() {
                 return id;
@@ -82,16 +82,9 @@ public class PlaylistResult {
             }
 
             public String getArtist() {
-                return artist.name;
+                return artist;
             }
 
-            public class Artist {
-                @SerializedName("_id")
-                private String id;
-
-                @SerializedName("name")
-                private String name;
-            }
         }
     }
 }
