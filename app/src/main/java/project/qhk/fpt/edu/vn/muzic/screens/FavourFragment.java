@@ -102,7 +102,6 @@ public class FavourFragment extends Fragment {
                 popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
                     public boolean onMenuItemClick(MenuItem item) {
                         if ("Remove".equals(item.getTitle())) {
-                            RealmManager.getInstance().removePlaylist(RealmManager.getInstance().getAllPlaylist().get(position));
                             if (NetworkManager.getInstance().isConnectedToInternet() && !PreferenceManager.getInstance().getToken().isEmpty()){
                                 waitingBar.setVisibility(View.VISIBLE);
                                 JsonObject object = new JsonObject();
@@ -120,17 +119,23 @@ public class FavourFragment extends Fragment {
                                     public void onResponse(Call<Result> call, Response<Result> response) {
                                         Result result = response.body();
                                         Toast.makeText(getContext(), result.getMessage(), Toast.LENGTH_SHORT).show();
+                                        RealmManager.getInstance().removePlaylist(RealmManager.getInstance().getAllPlaylist().get(position));
+                                        recyclerViewPlaylist.getAdapter().notifyDataSetChanged();
                                         waitingBar.setVisibility(View.INVISIBLE);
                                     }
 
                                     @Override
                                     public void onFailure(Call<Result> call, Throwable t) {
                                         Toast.makeText(getContext(), "FAILURE", Toast.LENGTH_SHORT).show();
+                                        recyclerViewPlaylist.getAdapter().notifyDataSetChanged();
                                         waitingBar.setVisibility(View.INVISIBLE);
                                     }
                                 });
+                            } else {
+                                RealmManager.getInstance().removePlaylist(RealmManager.getInstance().getAllPlaylist().get(position));
+                                recyclerViewPlaylist.getAdapter().notifyDataSetChanged();
                             }
-                            recyclerViewPlaylist.getAdapter().notifyDataSetChanged();
+
                         }
                         if ("Rename".equals(item.getTitle())) {
                             EditText input = new EditText(getContext());

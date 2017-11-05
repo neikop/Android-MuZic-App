@@ -202,11 +202,13 @@ public class LoginFragment extends Fragment {
                                             }
                                         }
                                     }
+                                    waitingBar.setVisibility(View.INVISIBLE);
                                 }
 
                                 @Override
                                 public void onFailure(Call<PlaylistResult> call, Throwable t) {
                                     System.out.println("failure");
+                                    waitingBar.setVisibility(View.INVISIBLE);
                                 }
                             });
                         } else {
@@ -245,20 +247,25 @@ public class LoginFragment extends Fragment {
                                             }
                                         }
                                     }
+                                    waitingBar.setVisibility(View.INVISIBLE);
                                 }
 
                                 @Override
                                 public void onFailure(Call<PlaylistResult> call, Throwable t) {
 //                                Toast.makeText(getContext(), "SYNC FAILURE", Toast.LENGTH_SHORT).show();
                                     System.out.println("failure");
+                                    waitingBar.setVisibility(View.INVISIBLE);
                                 }
                             });
                         }
+                    } else {
+                        waitingBar.setVisibility(View.INVISIBLE);
                     }
 
                     onBackPressed();
+                } else {
+                    waitingBar.setVisibility(View.INVISIBLE);
                 }
-                waitingBar.setVisibility(View.INVISIBLE);
             }
 
             @Override
