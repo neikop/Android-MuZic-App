@@ -13,9 +13,13 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 
 import org.greenrobot.eventbus.EventBus;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -25,8 +29,12 @@ import okhttp3.RequestBody;
 import project.qhk.fpt.edu.vn.muzic.Logistic;
 import project.qhk.fpt.edu.vn.muzic.MainActivity;
 import project.qhk.fpt.edu.vn.muzic.R;
+import project.qhk.fpt.edu.vn.muzic.managers.NetworkManager;
 import project.qhk.fpt.edu.vn.muzic.managers.PreferenceManager;
+import project.qhk.fpt.edu.vn.muzic.managers.RealmManager;
+import project.qhk.fpt.edu.vn.muzic.models.api_models.LocalSyncJSON;
 import project.qhk.fpt.edu.vn.muzic.models.api_models.LoginResult;
+import project.qhk.fpt.edu.vn.muzic.models.api_models.PlaylistResult;
 import project.qhk.fpt.edu.vn.muzic.models.api_models.Result;
 import project.qhk.fpt.edu.vn.muzic.notifiers.FragmentChanger;
 import project.qhk.fpt.edu.vn.muzic.services.MusicService;
@@ -135,6 +143,46 @@ public class LoginFragment extends Fragment {
                 Toast.makeText(getContext(), result.getMessage(), Toast.LENGTH_SHORT).show();
                 if (result.isSuccess()) {
                     PreferenceManager.getInstance().login(result.getName(), result.getToken(), result.getUser().getName(), result.getUser().getEmail());
+
+                    if (NetworkManager.getInstance().isConnectedToInternet()){
+                        waitingBar.setVisibility(View.VISIBLE);
+                        LocalSyncJSON localSyncJSON = new LocalSyncJSON();
+                        Gson gson= new GsonBuilder().setPrettyPrinting().create();
+                        String JSON= gson.toJson(localSyncJSON, localSyncJSON.getClass());
+                        try {
+                            JSONObject request = new JSONObject(JSON);
+
+                            RequestBody body = RequestBody.create(MediaType.parse("application/json"), request.toString());
+
+                            Retrofit mediaRetrofit = new Retrofit.Builder()
+                                    .baseUrl(Logistic.SERVER_API)
+                                    .addConverterFactory(GsonConverterFactory.create())
+                                    .build();
+                            MusicService musicService = mediaRetrofit.create(MusicService.class);
+                            musicService.syncPlaylist(body).enqueue(new Callback<PlaylistResult>() {
+                                @Override
+                                public void onResponse(Call<PlaylistResult> call, Response<PlaylistResult> response) {
+                                    PlaylistResult result = response.body();
+                                    if (result.isSuccess()) {
+                                        Toast.makeText(getContext(), result.getMessage(), Toast.LENGTH_SHORT).show();
+                                        RealmManager.getInstance().clearAllPlaylist();
+
+                                    }
+                                    waitingBar.setVisibility(View.INVISIBLE);
+                                }
+
+                                @Override
+                                public void onFailure(Call<PlaylistResult> call, Throwable t) {
+                                    Toast.makeText(getContext(), "SYNC FAILURE", Toast.LENGTH_SHORT).show();
+                                    waitingBar.setVisibility(View.INVISIBLE);
+                                }
+                            });
+                        } catch (JSONException e) {
+                            // TODO Auto-generated catch block
+                            e.printStackTrace();
+                        }
+                    }
+
                     onBackPressed();
                 }
                 waitingBar.setVisibility(View.INVISIBLE);
@@ -142,7 +190,7 @@ public class LoginFragment extends Fragment {
 
             @Override
             public void onFailure(Call<LoginResult> call, Throwable throwable) {
-                Toast.makeText(getContext(), "FAILURE", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "LOGIN FAILURE", Toast.LENGTH_SHORT).show();
                 waitingBar.setVisibility(View.INVISIBLE);
             }
         });

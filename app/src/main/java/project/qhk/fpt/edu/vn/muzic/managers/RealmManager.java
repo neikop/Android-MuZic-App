@@ -54,6 +54,13 @@ public class RealmManager {
         commitTransaction();
     }
 
+    public void clearAllPlaylist(){
+        beginTransaction();
+        getRealm().where(Playlist.class)
+                .findAll().deleteAllFromRealm();
+        commitTransaction();
+    }
+
     public List<Genre> getAliveGenres() {
         return getRealm().where(Genre.class)
                 .equalTo(Genre.FIELD_ALIVE, true)

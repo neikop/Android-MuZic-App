@@ -12,6 +12,9 @@ import android.view.ViewGroup;
 import android.widget.PopupMenu;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.google.gson.JsonObject;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -21,16 +24,27 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import okhttp3.MediaType;
+import okhttp3.RequestBody;
+import project.qhk.fpt.edu.vn.muzic.Logistic;
 import project.qhk.fpt.edu.vn.muzic.MainActivity;
 import project.qhk.fpt.edu.vn.muzic.R;
 import project.qhk.fpt.edu.vn.muzic.adapters.SongAdapter;
 import project.qhk.fpt.edu.vn.muzic.adapters.listeners.RecyclerViewListener;
+import project.qhk.fpt.edu.vn.muzic.managers.NetworkManager;
 import project.qhk.fpt.edu.vn.muzic.managers.RealmManager;
 import project.qhk.fpt.edu.vn.muzic.models.Playlist;
 import project.qhk.fpt.edu.vn.muzic.models.Song;
+import project.qhk.fpt.edu.vn.muzic.models.api_models.Result;
 import project.qhk.fpt.edu.vn.muzic.notifiers.SimpleNotifier;
 import project.qhk.fpt.edu.vn.muzic.notifiers.SongChanger;
 import project.qhk.fpt.edu.vn.muzic.notifiers.WaitingChanger;
+import project.qhk.fpt.edu.vn.muzic.services.MusicService;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.GsonConverterFactory;
+import retrofit2.Response;
+import retrofit2.Retrofit;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -115,6 +129,36 @@ public class FavourSongFragment extends Fragment {
                 popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
                     public boolean onMenuItemClick(MenuItem item) {
                         if ("Remove".equals(item.getTitle())) {
+
+                            if (NetworkManager.getInstance().isConnectedToInternet()){
+                                waitingBar.setVisibility(View.VISIBLE);
+                                JsonObject object = new JsonObject();
+                                object.addProperty("playlistId", playlist.get_id());
+                                object.addProperty("songId", songList.get(position).get_id());
+
+                                RequestBody body = RequestBody.create(MediaType.parse("application/json"), object.toString());
+
+                                Retrofit mediaRetrofit = new Retrofit.Builder()
+                                        .baseUrl(Logistic.SERVER_API)
+                                        .addConverterFactory(GsonConverterFactory.create())
+                                        .build();
+                                MusicService musicService = mediaRetrofit.create(MusicService.class);
+                                musicService.removeFromPlaylist(body).enqueue(new Callback<Result>() {
+                                    @Override
+                                    public void onResponse(Call<Result> call, Response<Result> response) {
+                                        Result result = response.body();
+                                        Toast.makeText(getContext(), result.getMessage(), Toast.LENGTH_SHORT).show();
+                                        waitingBar.setVisibility(View.INVISIBLE);
+                                    }
+
+                                    @Override
+                                    public void onFailure(Call<Result> call, Throwable t) {
+                                        Toast.makeText(getContext(), "FAILURE", Toast.LENGTH_SHORT).show();
+                                        waitingBar.setVisibility(View.INVISIBLE);
+                                    }
+                                });
+                            }
+
                             RealmManager.getInstance().removeFavourSong(songList.get(position));
                             songList = RealmManager.getInstance().getSongs(playlist.getPlaylistID());
                             recyclerViewSongs.getAdapter().notifyDataSetChanged();
