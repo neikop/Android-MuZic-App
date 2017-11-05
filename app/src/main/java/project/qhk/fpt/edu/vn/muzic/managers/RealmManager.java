@@ -176,7 +176,7 @@ public class RealmManager {
 
     public void removeFavourSong(Song song) {
         beginTransaction();
-        song.setGenreID("DEAD");
+        song.setPlaylistID("DEAD");
         commitTransaction();
     }
 
