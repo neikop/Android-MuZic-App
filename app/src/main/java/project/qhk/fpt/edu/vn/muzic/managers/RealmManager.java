@@ -119,7 +119,7 @@ public class RealmManager {
                 .findAll();
     }
 
-    public List<Song> getSongsOfPlaylist(String playlistId) {
+    public List<Song> getSongsPlaylist(String playlistId) {
         return getRealm().where(Song.class)
                 .equalTo(Song.PLAYLIST_ID, playlistId)
                 .equalTo(Song.FIELD_ALIVE, true)
@@ -163,7 +163,7 @@ public class RealmManager {
 
     public void removePlaylist(Playlist playlist) {
         beginTransaction();
-        for (Song song : getSongsOfPlaylist(playlist.getPlaylistID())) song.setPlaylistID("0");
+        for (Song song : getSongsPlaylist(playlist.getPlaylistID())) song.setPlaylistID("0");
         playlist.goDie();
         commitTransaction();
     }

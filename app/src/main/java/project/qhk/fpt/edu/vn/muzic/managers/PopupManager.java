@@ -14,8 +14,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import org.greenrobot.eventbus.EventBus;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
@@ -23,7 +21,6 @@ import project.qhk.fpt.edu.vn.muzic.Logistic;
 import project.qhk.fpt.edu.vn.muzic.R;
 import project.qhk.fpt.edu.vn.muzic.models.Playlist;
 import project.qhk.fpt.edu.vn.muzic.models.Song;
-import project.qhk.fpt.edu.vn.muzic.models.UpdateRealmId;
 import project.qhk.fpt.edu.vn.muzic.models.api_models.AddToPlaylistResult;
 import project.qhk.fpt.edu.vn.muzic.models.api_models.LocalAddJSON;
 import project.qhk.fpt.edu.vn.muzic.notifiers.SimpleNotifier;
@@ -89,10 +86,10 @@ public class PopupManager {
                 Playlist playlist = Playlist.createPlaylist(title);
                 Song addedSong = Song.createForPlaylist(playlist.getPlaylistID(), MusicPlayer.getInstance().getSong());
 
-                if (NetworkManager.getInstance().isConnectedToInternet() && !PreferenceManager.getInstance().getToken().isEmpty()){
+                if (NetworkManager.getInstance().isConnectedToInternet() && !PreferenceManager.getInstance().getToken().isEmpty()) {
                     EventBus.getDefault().post(new WaitingChanger(PlayerFragment.class.getSimpleName(), true));
                     LocalAddJSON localAddJSON = new LocalAddJSON(playlist.get_id() == null ? "" : playlist.get_id(), title, addedSong);
-                    Gson gson= new GsonBuilder().setPrettyPrinting().create();
+                    Gson gson = new GsonBuilder().setPrettyPrinting().create();
                     String requestJSON = gson.toJson(localAddJSON, localAddJSON.getClass());
                     System.out.println(requestJSON);
 
@@ -143,10 +140,10 @@ public class PopupManager {
         Playlist playlist = RealmManager.getInstance().getAllPlaylist().get(indexList);
         Song addedSong = Song.createForPlaylist(playlist.getPlaylistID(), MusicPlayer.getInstance().getSong());
 
-        if (NetworkManager.getInstance().isConnectedToInternet()  && !PreferenceManager.getInstance().getToken().isEmpty()){
+        if (NetworkManager.getInstance().isConnectedToInternet() && !PreferenceManager.getInstance().getToken().isEmpty()) {
             EventBus.getDefault().post(new WaitingChanger(PlayerFragment.class.getSimpleName(), true));
             LocalAddJSON localAddJSON = new LocalAddJSON(playlist.get_id() == null ? "" : playlist.get_id(), playlist.getName(), addedSong);
-            Gson gson= new GsonBuilder().setPrettyPrinting().create();
+            Gson gson = new GsonBuilder().setPrettyPrinting().create();
             String requestJSON = gson.toJson(localAddJSON, localAddJSON.getClass());
             System.out.println(requestJSON);
 

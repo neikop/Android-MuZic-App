@@ -5,7 +5,7 @@ import com.google.gson.annotations.SerializedName;
  * Created by QuangTM on 02/11/2017.
  */
 
-public class Result {
+public class RegisterResult {
 
     @SerializedName("status")
     private boolean success;

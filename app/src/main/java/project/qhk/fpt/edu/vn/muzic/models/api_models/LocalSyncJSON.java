@@ -2,8 +2,6 @@ package project.qhk.fpt.edu.vn.muzic.models.api_models;
 
 import com.google.gson.annotations.SerializedName;
 
-import org.json.JSONObject;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -70,7 +68,7 @@ public class LocalSyncJSON {
         for (Playlist playlist : RealmManager.getInstance().getAllPlaylist()){
             List<PlaylistJSON.SongJSON> songJSONList = new ArrayList<>();
             //noinspection Convert2streamapi
-            for (Song song : RealmManager.getInstance().getSongsOfPlaylist(playlist.getPlaylistID())){
+            for (Song song : RealmManager.getInstance().getSongsPlaylist(playlist.getPlaylistID())){
                 songJSONList.add(new PlaylistJSON().new SongJSON(song.getName(),song.getArtist(),song.getStream(), song.getImageLink()));
             }
             PlaylistJSON playlistJSON = new PlaylistJSON(playlist.get_id(), playlist.getName(), songJSONList);

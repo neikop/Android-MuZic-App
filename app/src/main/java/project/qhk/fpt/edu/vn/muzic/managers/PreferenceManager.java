@@ -3,6 +3,8 @@ package project.qhk.fpt.edu.vn.muzic.managers;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import project.qhk.fpt.edu.vn.muzic.models.api_models.LoginResult;
+
 /**
  * Created by WindzLord on 11/17/2016.
  */
@@ -10,10 +12,12 @@ import android.content.SharedPreferences;
 public class PreferenceManager {
 
     private static final String KEY = "PreferenceManager";
+
     private static final String USERNAME = "USERNAME";
     private static final String TOKEN = "TOKEN";
     private static final String EMAIL = "EMAIL";
-    private static final String FULLNAME = "FULLNAME";
+    private static final String NICKNAME = "NICKNAME";
+
     private static PreferenceManager instance;
     private SharedPreferences sharedPreferences;
 
@@ -41,15 +45,19 @@ public class PreferenceManager {
         sharedPreferences.edit().putString(TOKEN, token).apply();
     }
 
-    private void putFullname(String fullname) {
-        sharedPreferences.edit().putString(FULLNAME, fullname).apply();
+    public String getToken() {
+        return sharedPreferences.getString(TOKEN, "");
     }
 
-    public String getFullname() {
-        return sharedPreferences.getString(FULLNAME, "");
+    private void putNickname(String nickname) {
+        sharedPreferences.edit().putString(NICKNAME, nickname).apply();
     }
 
-    private void putEMail(String email) {
+    public String getNickname() {
+        return sharedPreferences.getString(NICKNAME, "");
+    }
+
+    private void putEmail(String email) {
         sharedPreferences.edit().putString(EMAIL, email).apply();
     }
 
@@ -57,22 +65,18 @@ public class PreferenceManager {
         return sharedPreferences.getString(EMAIL, "");
     }
 
-    public String getToken() {
-        return sharedPreferences.getString(TOKEN, "");
+    public void goLogin(LoginResult result) {
+        putNickname(result.getUser().getName());
+        putEmail(result.getUser().getEmail());
+        putUsername(result.getName());
+        putToken(result.getToken());
     }
 
-    public void login(String username, String token, String name, String email) {
-        putUsername(username);
-        putToken(token);
-        putEMail(email);
-        putFullname(name);
-    }
-
-    public void logout() {
+    public void goLogout() {
+        putNickname("");
+        putEmail("");
         putUsername("");
         putToken("");
-        putFullname("");
-        putEMail("");
     }
 
     public String[] getGenres() {

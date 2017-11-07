@@ -10,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -85,6 +86,10 @@ public class SearchFragment extends Fragment {
         if (isWaiting) return;
 
         String search = textSearch.getText().toString();
+        System.out.println("searching: " + search);
+
+        changeWaiting(true);
+
         Retrofit mediaRetrofit = new Retrofit.Builder()
                 .baseUrl(Logistic.SEARCH__API)
                 .addConverterFactory(GsonConverterFactory.create())
@@ -94,11 +99,12 @@ public class SearchFragment extends Fragment {
         musicService.getSearchResult(Logistic.CLIENT_ID, 10, search).enqueue(new Callback<SearchResult>() {
             @Override
             public void onResponse(Call<SearchResult> call, Response<SearchResult> response) {
-                SearchResult result = response.body();
+                changeWaiting(false);
 
                 RealmManager.getInstance().clearSearch();
-
                 Genre genre = new Genre("SEARCH");
+
+                SearchResult result = response.body();
                 for (SearchResult.SearchSong searchSong : result.getResults())
                     RealmManager.getInstance().addSong(
                             Song.create("SEARCH", new Song(searchSong)));
@@ -130,9 +136,15 @@ public class SearchFragment extends Fragment {
 
             @Override
             public void onFailure(Call<SearchResult> call, Throwable t) {
-
+                Toast.makeText(getContext(), "FAILURE", Toast.LENGTH_SHORT).show();
+                changeWaiting(false);
             }
         });
+    }
+
+    private void changeWaiting(boolean isWaiting) {
+        this.isWaiting = isWaiting;
+        waitingBar.setVisibility(isWaiting ? View.VISIBLE : View.INVISIBLE);
     }
 
     @Subscribe

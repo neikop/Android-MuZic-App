@@ -73,12 +73,16 @@ public class MainActivity extends AppCompatActivity {
 
     private Genre genre;
     private Playlist playlist;
+
     private Song song;
     private int indexSong;
+
     private boolean isPlaying;
     private boolean isWaiting;
-    private boolean isPlayingGenre;
     private boolean isSyncing = false;
+
+    private boolean isPlayingGenre;
+
     private CountDownTimer countDownTimer;
     private int remainTime;
     private int zTotalTime;
@@ -126,13 +130,26 @@ public class MainActivity extends AppCompatActivity {
     @Subscribe
     public void onFragmentEvent(FragmentChanger changer) {
         if (changer.getSource().equals(SettingFragment.class.getSimpleName())) {
-
             getSupportFragmentManager().beginTransaction()
                     .setCustomAnimations(R.anim.go_down_in, R.anim.do_nothing, R.anim.do_nothing, R.anim.go_down_out)
                     .replace(R.id.layout_mommy, new LoginFragment())
                     .addToBackStack(null).commit();
 
-        } else openFragment(changer.getSource(), changer.getFragment(), changer.isAddToBackStack());
+            new CountDownTimer(500, 100) {
+                @Override
+                public void onTick(long l) {
+
+                }
+
+                @Override
+                public void onFinish() {
+                    EventBus.getDefault().post(new SimpleNotifier(SettingFragment.class.getSimpleName()));
+                }
+            }.start();
+            return;
+        }
+
+        openFragment(changer.getSource(), changer.getFragment(), changer.isAddToBackStack());
     }
 
     private void openFragment(String source, Fragment fragment, boolean addToBackStack) {
@@ -154,14 +171,15 @@ public class MainActivity extends AppCompatActivity {
     public void onSongEvent(SongChanger event) {
         if (!this.getClass().getSimpleName().equals(event.getTarget())) return;
 
-        if (event.getGenre() != null){
+        if (event.getGenre() != null) {
             genre = event.getGenre();
             if (RealmManager.getInstance().getSongs(genre.getGenreID()).isEmpty()) return;
             isPlayingGenre = true;
             prePlay(event.getIndexSong(), true);
         } else {
             playlist = event.getPlaylist();
-            if (RealmManager.getInstance().getSongsOfPlaylist(playlist.getPlaylistID()).isEmpty()) return;
+            if (RealmManager.getInstance().getSongsPlaylist(playlist.getPlaylistID()).isEmpty())
+                return;
             isPlayingGenre = false;
             prePlay(event.getIndexSong(), false);
         }
@@ -172,7 +190,8 @@ public class MainActivity extends AppCompatActivity {
         if (isPlayGenre)
             song = RealmManager.getInstance().getSongs(genre.getGenreID()).get(indexSong);
         else
-            song = RealmManager.getInstance().getSongsOfPlaylist(playlist.getPlaylistID()).get(indexSong);
+            song = RealmManager.getInstance().getSongsPlaylist(playlist.getPlaylistID()).get(indexSong);
+
         String search = song.getName() + " - " + song.getArtist();
         System.out.println("searching " + search);
 
@@ -263,9 +282,10 @@ public class MainActivity extends AppCompatActivity {
             int number = RealmManager.getInstance().getSongs(genre.getGenreID()).size();
             prePlay(++indexSong % number, true);
         } else {
-            if (RealmManager.getInstance().getSongsOfPlaylist(playlist.getPlaylistID()).isEmpty()) return;
+            if (RealmManager.getInstance().getSongsPlaylist(playlist.getPlaylistID()).isEmpty())
+                return;
 
-            int number = RealmManager.getInstance().getSongsOfPlaylist(playlist.getPlaylistID()).size();
+            int number = RealmManager.getInstance().getSongsPlaylist(playlist.getPlaylistID()).size();
             prePlay(++indexSong % number, true);
         }
     }
@@ -278,9 +298,10 @@ public class MainActivity extends AppCompatActivity {
             int number = RealmManager.getInstance().getSongs(genre.getGenreID()).size();
             prePlay((indexSong + number - 1) % number, true);
         } else {
-            if (RealmManager.getInstance().getSongsOfPlaylist(playlist.getPlaylistID()).isEmpty()) return;
+            if (RealmManager.getInstance().getSongsPlaylist(playlist.getPlaylistID()).isEmpty())
+                return;
 
-            int number = RealmManager.getInstance().getSongsOfPlaylist(playlist.getPlaylistID()).size();
+            int number = RealmManager.getInstance().getSongsPlaylist(playlist.getPlaylistID()).size();
             prePlay((indexSong + number - 1) % number, true);
         }
 
@@ -375,4 +396,5 @@ public class MainActivity extends AppCompatActivity {
         }
         setLayoutDaddy(View.VISIBLE);
     }
+
 }

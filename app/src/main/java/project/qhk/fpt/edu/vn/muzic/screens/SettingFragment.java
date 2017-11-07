@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -34,6 +35,7 @@ public class SettingFragment extends Fragment {
     @BindView(R.id.pager)
     ViewPager myViewPager;
 
+    private boolean justGoLogin = false;
 
     public SettingFragment() {
         // Required empty public constructor
@@ -52,6 +54,7 @@ public class SettingFragment extends Fragment {
 
     private void settingThingsUp(View view) {
         ButterKnife.bind(this, view);
+        EventBus.getDefault().register(this);
 
         goTabLayout();
     }
@@ -63,7 +66,10 @@ public class SettingFragment extends Fragment {
         myToolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
+                if (justGoLogin) return false;
                 System.out.println("onMenuItemClick");
+
+                justGoLogin = true;
                 EventBus.getDefault().post(new FragmentChanger(
                         SettingFragment.class.getSimpleName(), new LoginFragment(), true));
 
@@ -100,6 +106,19 @@ public class SettingFragment extends Fragment {
             public void onTabReselected(TabLayout.Tab tab) {
             }
         });
+    }
+
+    @Subscribe
+    public void getSimpleNotifier(SimpleNotifier event) {
+        if (!this.getClass().getSimpleName().equals(event.getTarget())) return;
+
+        justGoLogin = false;
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        EventBus.getDefault().unregister(this);
     }
 
 }

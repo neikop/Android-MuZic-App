@@ -33,7 +33,7 @@ import project.qhk.fpt.edu.vn.muzic.adapters.listeners.RecyclerViewListener;
 import project.qhk.fpt.edu.vn.muzic.managers.NetworkManager;
 import project.qhk.fpt.edu.vn.muzic.managers.PreferenceManager;
 import project.qhk.fpt.edu.vn.muzic.managers.RealmManager;
-import project.qhk.fpt.edu.vn.muzic.models.api_models.Result;
+import project.qhk.fpt.edu.vn.muzic.models.api_models.RegisterResult;
 import project.qhk.fpt.edu.vn.muzic.notifiers.FragmentChanger;
 import project.qhk.fpt.edu.vn.muzic.notifiers.SimpleNotifier;
 import project.qhk.fpt.edu.vn.muzic.services.MusicService;
@@ -114,10 +114,10 @@ public class FavourFragment extends Fragment {
                                         .addConverterFactory(GsonConverterFactory.create())
                                         .build();
                                 MusicService musicService = mediaRetrofit.create(MusicService.class);
-                                musicService.removePlaylist(body).enqueue(new Callback<Result>() {
+                                musicService.removePlaylist(body).enqueue(new Callback<RegisterResult>() {
                                     @Override
-                                    public void onResponse(Call<Result> call, Response<Result> response) {
-                                        Result result = response.body();
+                                    public void onResponse(Call<RegisterResult> call, Response<RegisterResult> response) {
+                                        RegisterResult result = response.body();
                                         Toast.makeText(getContext(), result.getMessage(), Toast.LENGTH_SHORT).show();
                                         RealmManager.getInstance().removePlaylist(RealmManager.getInstance().getAllPlaylist().get(position));
                                         recyclerViewPlaylist.getAdapter().notifyDataSetChanged();
@@ -125,7 +125,7 @@ public class FavourFragment extends Fragment {
                                     }
 
                                     @Override
-                                    public void onFailure(Call<Result> call, Throwable t) {
+                                    public void onFailure(Call<RegisterResult> call, Throwable t) {
                                         Toast.makeText(getContext(), "FAILURE", Toast.LENGTH_SHORT).show();
                                         recyclerViewPlaylist.getAdapter().notifyDataSetChanged();
                                         waitingBar.setVisibility(View.INVISIBLE);
@@ -166,16 +166,16 @@ public class FavourFragment extends Fragment {
                                                 .addConverterFactory(GsonConverterFactory.create())
                                                 .build();
                                         MusicService musicService = mediaRetrofit.create(MusicService.class);
-                                        musicService.renamePlaylist(body).enqueue(new Callback<Result>() {
+                                        musicService.renamePlaylist(body).enqueue(new Callback<RegisterResult>() {
                                             @Override
-                                            public void onResponse(Call<Result> call, Response<Result> response) {
-                                                Result result = response.body();
+                                            public void onResponse(Call<RegisterResult> call, Response<RegisterResult> response) {
+                                                RegisterResult result = response.body();
                                                 Toast.makeText(getContext(), result.getMessage(), Toast.LENGTH_SHORT).show();
                                                 waitingBar.setVisibility(View.INVISIBLE);
                                             }
 
                                             @Override
-                                            public void onFailure(Call<Result> call, Throwable t) {
+                                            public void onFailure(Call<RegisterResult> call, Throwable t) {
                                                 Toast.makeText(getContext(), "FAILURE", Toast.LENGTH_SHORT).show();
                                                 waitingBar.setVisibility(View.INVISIBLE);
                                             }
