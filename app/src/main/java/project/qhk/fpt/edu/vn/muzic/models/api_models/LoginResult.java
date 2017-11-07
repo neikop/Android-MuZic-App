@@ -36,6 +36,10 @@ public class LoginResult {
         return message;
     }
 
+    public User getUser() {
+        return user;
+    }
+
     public class User {
 
         @SerializedName("_id")
@@ -57,9 +61,5 @@ public class LoginResult {
         public String getEmail() {
             return email;
         }
-    }
-
-    public User getUser() {
-        return user;
     }
 }

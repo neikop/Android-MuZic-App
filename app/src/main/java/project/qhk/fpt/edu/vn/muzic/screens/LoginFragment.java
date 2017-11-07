@@ -13,7 +13,11 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
+
+import org.greenrobot.eventbus.EventBus;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -24,8 +28,14 @@ import project.qhk.fpt.edu.vn.muzic.Logistic;
 import project.qhk.fpt.edu.vn.muzic.MainActivity;
 import project.qhk.fpt.edu.vn.muzic.R;
 import project.qhk.fpt.edu.vn.muzic.managers.PreferenceManager;
+import project.qhk.fpt.edu.vn.muzic.managers.RealmManager;
+import project.qhk.fpt.edu.vn.muzic.models.Playlist;
+import project.qhk.fpt.edu.vn.muzic.models.Song;
+import project.qhk.fpt.edu.vn.muzic.models.api_models.LocalSyncJSON;
 import project.qhk.fpt.edu.vn.muzic.models.api_models.LoginResult;
-import project.qhk.fpt.edu.vn.muzic.models.api_models.RegisterResult;
+import project.qhk.fpt.edu.vn.muzic.models.api_models.PlaylistResult;
+import project.qhk.fpt.edu.vn.muzic.models.api_models.Result;
+import project.qhk.fpt.edu.vn.muzic.notifiers.SimpleNotifier;
 import project.qhk.fpt.edu.vn.muzic.services.MusicService;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -117,17 +127,17 @@ public class LoginFragment extends Fragment {
         layoutRegister.setVisibility(View.GONE);
         layoutProfile.setVisibility(View.GONE);
 
-        if (PreferenceManager.getInstance().getToken().isEmpty()) {
-            imageSign.setImageResource(R.drawable.icon_register);
-            textSign.setText("Register");
-
-            layoutLogin.setVisibility(View.VISIBLE);
-        } else {
+        if (PreferenceManager.getInstance().isLogin()) {
             imageSign.setImageResource(R.drawable.icon_logout);
             textSign.setText("Logout");
 
             layoutProfile.setVisibility(View.VISIBLE);
             textNickname.setText(PreferenceManager.getInstance().getUsername());
+        } else {
+            imageSign.setImageResource(R.drawable.icon_register);
+            textSign.setText("Register");
+
+            layoutLogin.setVisibility(View.VISIBLE);
         }
     }
 
@@ -244,6 +254,8 @@ public class LoginFragment extends Fragment {
                     Toast.makeText(getContext(), "FAILURE", Toast.LENGTH_SHORT).show();
                     return;
                 }
+                Toast.makeText(getContext(), result.getMessage(), Toast.LENGTH_SHORT).show();
+
                 if (result.isSuccess()) {
                     PreferenceManager.getInstance().goLogin(result);
                     layoutLogin.setVisibility(View.GONE);
@@ -254,13 +266,15 @@ public class LoginFragment extends Fragment {
 
                     layoutProfile.setVisibility(View.VISIBLE);
                     textNickname.setText(PreferenceManager.getInstance().getUsername());
+
+                    goTaiHard();
                 }
-                Toast.makeText(getContext(), result.getMessage(), Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public void onFailure(Call<LoginResult> call, Throwable throwable) {
                 waitingBar.setVisibility(View.INVISIBLE);
+                isWaiting = false;
                 Toast.makeText(getContext(), "FAILURE", Toast.LENGTH_SHORT).show();
             }
         });
@@ -294,17 +308,19 @@ public class LoginFragment extends Fragment {
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
         MusicService musicService = mediaRetrofit.create(MusicService.class);
-        musicService.getRegisterResult(body).enqueue(new Callback<RegisterResult>() {
+        musicService.getRegisterResult(body).enqueue(new Callback<Result>() {
             @Override
-            public void onResponse(Call<RegisterResult> call, Response<RegisterResult> response) {
+            public void onResponse(Call<Result> call, Response<Result> response) {
                 waitingBar.setVisibility(View.INVISIBLE);
                 isWaiting = false;
 
-                RegisterResult result = response.body();
+                Result result = response.body();
                 if (result == null) {
                     Toast.makeText(getContext(), "FAILURE", Toast.LENGTH_SHORT).show();
                     return;
                 }
+                Toast.makeText(getContext(), result.getMessage(), Toast.LENGTH_SHORT).show();
+
                 if (result.isSuccess()) {
                     layoutRegister.setVisibility(View.GONE);
                     layoutLogin.setVisibility(View.VISIBLE);
@@ -313,13 +329,117 @@ public class LoginFragment extends Fragment {
                     loginUsername.setText("");
                     loginPassword.setText("");
                 }
-                Toast.makeText(getContext(), result.getMessage(), Toast.LENGTH_SHORT).show();
             }
 
             @Override
-            public void onFailure(Call<RegisterResult> call, Throwable t) {
+            public void onFailure(Call<Result> call, Throwable throwable) {
                 waitingBar.setVisibility(View.INVISIBLE);
+                isWaiting = false;
                 Toast.makeText(getContext(), "FAILURE", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void goTaiHard() {
+        if (isWaiting) return;
+        isWaiting = true;
+        waitingBar.setVisibility(View.VISIBLE);
+
+        if (RealmManager.getInstance().getAllPlaylist().isEmpty())
+            getPlaylistByUser();
+        else syncPlaylist();
+
+    }
+
+    private void getPlaylistByUser() {
+        JsonObject object = new JsonObject();
+        object.addProperty("token", PreferenceManager.getInstance().getToken());
+        RequestBody body = RequestBody.create(MediaType.parse("application/json"), object.toString());
+
+        Retrofit mediaRetrofit = new Retrofit.Builder()
+                .baseUrl(Logistic.SERVER_API)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+        MusicService musicService = mediaRetrofit.create(MusicService.class);
+        musicService.getPlaylistByUser(body).enqueue(new Callback<PlaylistResult>() {
+            @Override
+            public void onResponse(Call<PlaylistResult> call, Response<PlaylistResult> response) {
+                waitingBar.setVisibility(View.INVISIBLE);
+                isWaiting = false;
+
+                PlaylistResult result = response.body();
+                if (result == null) {
+                    return;
+                }
+
+                if (result.isSuccess()) {
+                    RealmManager.getInstance().clearSongsPlaylist();
+                    RealmManager.getInstance().clearAllPlaylist();
+
+                    for (PlaylistResult.Playlist returnPlaylist : result.getPlaylist()) {
+                        Playlist playlist = Playlist.createPlaylist(returnPlaylist.getName());
+                        playlist.set_id(returnPlaylist.getId());
+                        RealmManager.getInstance().addNewPlaylist(playlist);
+
+                        for (PlaylistResult.Playlist.Song returnSong : returnPlaylist.getSongList()) {
+                            Song song = Song.createForPlaylist(playlist.getPlaylistID(), new Song(returnSong));
+                            RealmManager.getInstance().addSong(song);
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<PlaylistResult> call, Throwable throwable) {
+                waitingBar.setVisibility(View.INVISIBLE);
+                isWaiting = false;
+            }
+        });
+    }
+
+    private void syncPlaylist() {
+        LocalSyncJSON localSyncJSON = new LocalSyncJSON();
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        String requestJSON = gson.toJson(localSyncJSON, localSyncJSON.getClass());
+        RequestBody body = RequestBody.create(MediaType.parse("application/json"), requestJSON);
+
+        Retrofit mediaRetrofit = new Retrofit.Builder()
+                .baseUrl(Logistic.SERVER_API)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+        MusicService musicService = mediaRetrofit.create(MusicService.class);
+        musicService.syncPlaylist(body).enqueue(new Callback<PlaylistResult>() {
+            @Override
+            public void onResponse(Call<PlaylistResult> call, Response<PlaylistResult> response) {
+                waitingBar.setVisibility(View.INVISIBLE);
+                isWaiting = false;
+
+                PlaylistResult result = response.body();
+                if (result == null) {
+                    return;
+                }
+
+                if (result.isSuccess()) {
+                    RealmManager.getInstance().clearSongsPlaylist();
+                    RealmManager.getInstance().clearAllPlaylist();
+
+                    for (PlaylistResult.Playlist returnPlaylist : result.getPlaylist()) {
+                        Playlist playlist = Playlist.createPlaylist(returnPlaylist.getName());
+                        playlist.set_id(returnPlaylist.getId());
+                        RealmManager.getInstance().addNewPlaylist(playlist);
+
+                        for (PlaylistResult.Playlist.Song returnSong : returnPlaylist.getSongList()) {
+                            Song song = Song.createForPlaylist(playlist.getPlaylistID(), new Song(returnSong));
+                            RealmManager.getInstance().addSong(song);
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<PlaylistResult> call, Throwable t) {
+                waitingBar.setVisibility(View.INVISIBLE);
+                isWaiting = false;
             }
         });
     }

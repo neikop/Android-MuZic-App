@@ -14,8 +14,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.PopupMenu;
-import android.widget.ProgressBar;
-import android.widget.Toast;
 
 import com.google.gson.JsonObject;
 
@@ -30,10 +28,9 @@ import project.qhk.fpt.edu.vn.muzic.Logistic;
 import project.qhk.fpt.edu.vn.muzic.R;
 import project.qhk.fpt.edu.vn.muzic.adapters.PlaylistAdapter;
 import project.qhk.fpt.edu.vn.muzic.adapters.listeners.RecyclerViewListener;
-import project.qhk.fpt.edu.vn.muzic.managers.NetworkManager;
 import project.qhk.fpt.edu.vn.muzic.managers.PreferenceManager;
 import project.qhk.fpt.edu.vn.muzic.managers.RealmManager;
-import project.qhk.fpt.edu.vn.muzic.models.api_models.RegisterResult;
+import project.qhk.fpt.edu.vn.muzic.models.api_models.Result;
 import project.qhk.fpt.edu.vn.muzic.notifiers.FragmentChanger;
 import project.qhk.fpt.edu.vn.muzic.notifiers.SimpleNotifier;
 import project.qhk.fpt.edu.vn.muzic.services.MusicService;
@@ -50,9 +47,6 @@ public class FavourFragment extends Fragment {
 
     @BindView(R.id.recycler_view_playlist)
     RecyclerView recyclerViewPlaylist;
-
-    @BindView(R.id.login_bar_waiting)
-    ProgressBar waitingBar;
 
     public FavourFragment() {
         // Required empty public constructor
@@ -77,7 +71,6 @@ public class FavourFragment extends Fragment {
     }
 
     private void goContent() {
-        waitingBar.setVisibility(View.INVISIBLE);
         recyclerViewPlaylist.setLayoutManager(new LinearLayoutManager(
                 getActivity(), LinearLayoutManager.VERTICAL, false));
         recyclerViewPlaylist.setAdapter(new PlaylistAdapter());
@@ -102,8 +95,7 @@ public class FavourFragment extends Fragment {
                 popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
                     public boolean onMenuItemClick(MenuItem item) {
                         if ("Remove".equals(item.getTitle())) {
-                            if (NetworkManager.getInstance().isConnectedToInternet() && !PreferenceManager.getInstance().getToken().isEmpty()){
-                                waitingBar.setVisibility(View.VISIBLE);
+                            if (PreferenceManager.getInstance().isLogin()) {
                                 JsonObject object = new JsonObject();
                                 object.addProperty("playlistId", RealmManager.getInstance().getAllPlaylist().get(position).get_id());
                                 object.addProperty("token", PreferenceManager.getInstance().getToken());
@@ -114,29 +106,20 @@ public class FavourFragment extends Fragment {
                                         .addConverterFactory(GsonConverterFactory.create())
                                         .build();
                                 MusicService musicService = mediaRetrofit.create(MusicService.class);
-                                musicService.removePlaylist(body).enqueue(new Callback<RegisterResult>() {
+                                musicService.removePlaylist(body).enqueue(new Callback<Result>() {
                                     @Override
-                                    public void onResponse(Call<RegisterResult> call, Response<RegisterResult> response) {
-                                        RegisterResult result = response.body();
-                                        Toast.makeText(getContext(), result.getMessage(), Toast.LENGTH_SHORT).show();
-                                        RealmManager.getInstance().removePlaylist(RealmManager.getInstance().getAllPlaylist().get(position));
-                                        recyclerViewPlaylist.getAdapter().notifyDataSetChanged();
-                                        waitingBar.setVisibility(View.INVISIBLE);
+                                    public void onResponse(Call<Result> call, Response<Result> response) {
                                     }
 
                                     @Override
-                                    public void onFailure(Call<RegisterResult> call, Throwable t) {
-                                        Toast.makeText(getContext(), "FAILURE", Toast.LENGTH_SHORT).show();
-                                        recyclerViewPlaylist.getAdapter().notifyDataSetChanged();
-                                        waitingBar.setVisibility(View.INVISIBLE);
+                                    public void onFailure(Call<Result> call, Throwable throwable) {
                                     }
                                 });
-                            } else {
-                                RealmManager.getInstance().removePlaylist(RealmManager.getInstance().getAllPlaylist().get(position));
-                                recyclerViewPlaylist.getAdapter().notifyDataSetChanged();
                             }
-
+                            RealmManager.getInstance().removePlaylist(RealmManager.getInstance().getAllPlaylist().get(position));
+                            recyclerViewPlaylist.getAdapter().notifyDataSetChanged();
                         }
+
                         if ("Rename".equals(item.getTitle())) {
                             EditText input = new EditText(getContext());
                             input.setInputType(InputType.TYPE_CLASS_TEXT);
@@ -150,15 +133,11 @@ public class FavourFragment extends Fragment {
                                     String name = input.getText().toString().trim();
                                     if (name.isEmpty()) name = "Empty name";
 
-                                    RealmManager.getInstance().renamePlaylist(RealmManager.getInstance().getAllPlaylist().get(position), name);
-
-                                    if (NetworkManager.getInstance().isConnectedToInternet()  && !PreferenceManager.getInstance().getToken().isEmpty()){
-                                        waitingBar.setVisibility(View.VISIBLE);
+                                    if (PreferenceManager.getInstance().isLogin()) {
                                         JsonObject object = new JsonObject();
                                         object.addProperty("playlistId", RealmManager.getInstance().getAllPlaylist().get(position).get_id());
                                         object.addProperty("playlistName", name);
                                         object.addProperty("token", PreferenceManager.getInstance().getToken());
-
                                         RequestBody body = RequestBody.create(MediaType.parse("application/json"), object.toString());
 
                                         Retrofit mediaRetrofit = new Retrofit.Builder()
@@ -166,22 +145,17 @@ public class FavourFragment extends Fragment {
                                                 .addConverterFactory(GsonConverterFactory.create())
                                                 .build();
                                         MusicService musicService = mediaRetrofit.create(MusicService.class);
-                                        musicService.renamePlaylist(body).enqueue(new Callback<RegisterResult>() {
+                                        musicService.renamePlaylist(body).enqueue(new Callback<Result>() {
                                             @Override
-                                            public void onResponse(Call<RegisterResult> call, Response<RegisterResult> response) {
-                                                RegisterResult result = response.body();
-                                                Toast.makeText(getContext(), result.getMessage(), Toast.LENGTH_SHORT).show();
-                                                waitingBar.setVisibility(View.INVISIBLE);
+                                            public void onResponse(Call<Result> call, Response<Result> response) {
                                             }
 
                                             @Override
-                                            public void onFailure(Call<RegisterResult> call, Throwable t) {
-                                                Toast.makeText(getContext(), "FAILURE", Toast.LENGTH_SHORT).show();
-                                                waitingBar.setVisibility(View.INVISIBLE);
+                                            public void onFailure(Call<Result> call, Throwable throwable) {
                                             }
                                         });
                                     }
-
+                                    RealmManager.getInstance().renamePlaylist(RealmManager.getInstance().getAllPlaylist().get(position), name);
                                     recyclerViewPlaylist.getAdapter().notifyDataSetChanged();
                                 }
                             }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {

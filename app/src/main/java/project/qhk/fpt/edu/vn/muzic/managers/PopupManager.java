@@ -24,10 +24,8 @@ import project.qhk.fpt.edu.vn.muzic.models.Song;
 import project.qhk.fpt.edu.vn.muzic.models.api_models.AddToPlaylistResult;
 import project.qhk.fpt.edu.vn.muzic.models.api_models.LocalAddJSON;
 import project.qhk.fpt.edu.vn.muzic.notifiers.SimpleNotifier;
-import project.qhk.fpt.edu.vn.muzic.notifiers.WaitingChanger;
 import project.qhk.fpt.edu.vn.muzic.screens.FavourFragment;
 import project.qhk.fpt.edu.vn.muzic.screens.FavourSongFragment;
-import project.qhk.fpt.edu.vn.muzic.screens.PlayerFragment;
 import project.qhk.fpt.edu.vn.muzic.services.MusicService;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -44,7 +42,7 @@ public class PopupManager {
     private static PopupManager instance;
     private PopupMenu popup;
 
-    public PopupManager(Context context, View view) {
+    private PopupManager(Context context, View view) {
         popup = new PopupMenu(context, view);
         popup.getMenuInflater().inflate(R.menu.menu_like, popup.getMenu());
 
@@ -87,12 +85,9 @@ public class PopupManager {
                 Song addedSong = Song.createForPlaylist(playlist.getPlaylistID(), MusicPlayer.getInstance().getSong());
 
                 if (NetworkManager.getInstance().isConnectedToInternet() && !PreferenceManager.getInstance().getToken().isEmpty()) {
-                    EventBus.getDefault().post(new WaitingChanger(PlayerFragment.class.getSimpleName(), true));
                     LocalAddJSON localAddJSON = new LocalAddJSON(playlist.get_id() == null ? "" : playlist.get_id(), title, addedSong);
                     Gson gson = new GsonBuilder().setPrettyPrinting().create();
                     String requestJSON = gson.toJson(localAddJSON, localAddJSON.getClass());
-                    System.out.println(requestJSON);
-
                     RequestBody body = RequestBody.create(MediaType.parse("application/json"), requestJSON);
 
                     Retrofit mediaRetrofit = new Retrofit.Builder()
@@ -104,20 +99,23 @@ public class PopupManager {
                         @Override
                         public void onResponse(Call<AddToPlaylistResult> call, Response<AddToPlaylistResult> response) {
                             AddToPlaylistResult result = response.body();
+                            if (result == null) {
+                                RealmManager.getInstance().addNewPlaylist(playlist);
+                                RealmManager.getInstance().addSong(addedSong);
+                                return;
+                            }
                             if (result.isSuccess()) {
-                                System.out.println("Success Add to Server");
                                 playlist.set_id(result.getPlaylistId());
                                 addedSong.set_id(result.getSongId());
                                 RealmManager.getInstance().addNewPlaylist(playlist);
                                 RealmManager.getInstance().addSong(addedSong);
                             }
-                            EventBus.getDefault().post(new WaitingChanger(PlayerFragment.class.getSimpleName(), false));
                         }
 
                         @Override
                         public void onFailure(Call<AddToPlaylistResult> call, Throwable t) {
-                            EventBus.getDefault().post(new WaitingChanger(PlayerFragment.class.getSimpleName(), false));
-                            System.out.println("failure");
+                            RealmManager.getInstance().addNewPlaylist(playlist);
+                            RealmManager.getInstance().addSong(addedSong);
                         }
                     });
                 } else {
@@ -140,13 +138,10 @@ public class PopupManager {
         Playlist playlist = RealmManager.getInstance().getAllPlaylist().get(indexList);
         Song addedSong = Song.createForPlaylist(playlist.getPlaylistID(), MusicPlayer.getInstance().getSong());
 
-        if (NetworkManager.getInstance().isConnectedToInternet() && !PreferenceManager.getInstance().getToken().isEmpty()) {
-            EventBus.getDefault().post(new WaitingChanger(PlayerFragment.class.getSimpleName(), true));
+        if (PreferenceManager.getInstance().isLogin()) {
             LocalAddJSON localAddJSON = new LocalAddJSON(playlist.get_id() == null ? "" : playlist.get_id(), playlist.getName(), addedSong);
             Gson gson = new GsonBuilder().setPrettyPrinting().create();
             String requestJSON = gson.toJson(localAddJSON, localAddJSON.getClass());
-            System.out.println(requestJSON);
-
             RequestBody body = RequestBody.create(MediaType.parse("application/json"), requestJSON);
 
             Retrofit mediaRetrofit = new Retrofit.Builder()
@@ -158,18 +153,19 @@ public class PopupManager {
                 @Override
                 public void onResponse(Call<AddToPlaylistResult> call, Response<AddToPlaylistResult> response) {
                     AddToPlaylistResult result = response.body();
+                    if (result == null) {
+                        RealmManager.getInstance().addSong(addedSong);
+                        return;
+                    }
                     if (result.isSuccess()) {
-                        System.out.println("Success Add to Server");
                         addedSong.set_id(result.getSongId());
                         RealmManager.getInstance().addSong(addedSong);
                     }
-                    EventBus.getDefault().post(new WaitingChanger(PlayerFragment.class.getSimpleName(), false));
                 }
 
                 @Override
                 public void onFailure(Call<AddToPlaylistResult> call, Throwable t) {
-                    System.out.println("failure");
-                    EventBus.getDefault().post(new WaitingChanger(PlayerFragment.class.getSimpleName(), false));
+                    RealmManager.getInstance().addSong(addedSong);
                 }
             });
         } else {

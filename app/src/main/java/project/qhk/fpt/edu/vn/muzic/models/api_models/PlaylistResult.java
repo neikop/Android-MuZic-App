@@ -17,7 +17,7 @@ public class PlaylistResult {
     private String message;
 
     @SerializedName("playlists")
-    private ArrayList<Playlist> playlists;
+    private ArrayList<Playlist> playlist;
 
     public String getMessage() {
         return message;
@@ -27,11 +27,12 @@ public class PlaylistResult {
         return success;
     }
 
-    public ArrayList<Playlist> getPlaylists() {
-        return playlists;
+    public ArrayList<Playlist> getPlaylist() {
+        return playlist;
     }
 
     public class Playlist {
+
         @SerializedName("_id")
         private String id;
 
@@ -54,6 +55,7 @@ public class PlaylistResult {
         }
 
         public class Song {
+
             @SerializedName("_id")
             private String id;
 
@@ -88,7 +90,6 @@ public class PlaylistResult {
             public String getArtist() {
                 return artist;
             }
-
         }
     }
 }

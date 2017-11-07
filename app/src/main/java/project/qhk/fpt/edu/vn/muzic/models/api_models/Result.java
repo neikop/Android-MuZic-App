@@ -1,11 +1,12 @@
 package project.qhk.fpt.edu.vn.muzic.models.api_models;
 
 import com.google.gson.annotations.SerializedName;
+
 /**
  * Created by QuangTM on 02/11/2017.
  */
 
-public class RegisterResult {
+public class Result {
 
     @SerializedName("status")
     private boolean success;

@@ -12,7 +12,6 @@ import android.view.ViewGroup;
 import android.widget.PopupMenu;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.gson.JsonObject;
 
@@ -31,12 +30,11 @@ import project.qhk.fpt.edu.vn.muzic.MainActivity;
 import project.qhk.fpt.edu.vn.muzic.R;
 import project.qhk.fpt.edu.vn.muzic.adapters.SongAdapter;
 import project.qhk.fpt.edu.vn.muzic.adapters.listeners.RecyclerViewListener;
-import project.qhk.fpt.edu.vn.muzic.managers.NetworkManager;
 import project.qhk.fpt.edu.vn.muzic.managers.PreferenceManager;
 import project.qhk.fpt.edu.vn.muzic.managers.RealmManager;
 import project.qhk.fpt.edu.vn.muzic.models.Playlist;
 import project.qhk.fpt.edu.vn.muzic.models.Song;
-import project.qhk.fpt.edu.vn.muzic.models.api_models.RegisterResult;
+import project.qhk.fpt.edu.vn.muzic.models.api_models.Result;
 import project.qhk.fpt.edu.vn.muzic.notifiers.SimpleNotifier;
 import project.qhk.fpt.edu.vn.muzic.notifiers.SongChanger;
 import project.qhk.fpt.edu.vn.muzic.notifiers.WaitingChanger;
@@ -76,8 +74,6 @@ public class FavourSongFragment extends Fragment {
     public void setPlaylistIndex(int index) {
         playlist = RealmManager.getInstance().getAllPlaylist().get(index);
         songList = RealmManager.getInstance().getSongsPlaylist(playlist.getPlaylistID());
-        System.out.println("playlist id : "+playlist.getPlaylistID());
-        System.out.println("songlist size: "+songList.size());
     }
 
     @Override
@@ -130,14 +126,11 @@ public class FavourSongFragment extends Fragment {
                 popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
                     public boolean onMenuItemClick(MenuItem item) {
                         if ("Remove".equals(item.getTitle())) {
-
-                            if (NetworkManager.getInstance().isConnectedToInternet()  && !PreferenceManager.getInstance().getToken().isEmpty()){
-                                waitingBar.setVisibility(View.VISIBLE);
+                            if (PreferenceManager.getInstance().isLogin()) {
                                 JsonObject object = new JsonObject();
                                 object.addProperty("playlistId", playlist.get_id());
                                 object.addProperty("songId", songList.get(position).get_id());
                                 object.addProperty("token", PreferenceManager.getInstance().getToken());
-
                                 RequestBody body = RequestBody.create(MediaType.parse("application/json"), object.toString());
 
                                 Retrofit mediaRetrofit = new Retrofit.Builder()
@@ -145,24 +138,19 @@ public class FavourSongFragment extends Fragment {
                                         .addConverterFactory(GsonConverterFactory.create())
                                         .build();
                                 MusicService musicService = mediaRetrofit.create(MusicService.class);
-                                musicService.removeFromPlaylist(body).enqueue(new Callback<RegisterResult>() {
+                                musicService.removeFromPlaylist(body).enqueue(new Callback<Result>() {
                                     @Override
-                                    public void onResponse(Call<RegisterResult> call, Response<RegisterResult> response) {
-                                        RegisterResult result = response.body();
-                                        Toast.makeText(getContext(), result.getMessage(), Toast.LENGTH_SHORT).show();
-                                        waitingBar.setVisibility(View.INVISIBLE);
+                                    public void onResponse(Call<Result> call, Response<Result> response) {
                                     }
 
                                     @Override
-                                    public void onFailure(Call<RegisterResult> call, Throwable t) {
-                                        Toast.makeText(getContext(), "FAILURE", Toast.LENGTH_SHORT).show();
-                                        waitingBar.setVisibility(View.INVISIBLE);
+                                    public void onFailure(Call<Result> call, Throwable throwable) {
                                     }
                                 });
                             }
-
                             RealmManager.getInstance().removeFavourSong(songList.get(position));
                             songList = RealmManager.getInstance().getSongs(playlist.getPlaylistID());
+                            textFavourSize.setText(songList.size() + " songs");
                             recyclerViewSongs.getAdapter().notifyDataSetChanged();
                         }
                         return true;

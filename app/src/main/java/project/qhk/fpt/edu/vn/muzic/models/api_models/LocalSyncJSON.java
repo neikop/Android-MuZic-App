@@ -15,13 +15,30 @@ import project.qhk.fpt.edu.vn.muzic.models.Song;
  */
 
 public class LocalSyncJSON {
+
     @SerializedName("token")
     private String token;
 
     @SerializedName("playlists")
     private List<PlaylistJSON> playlists;
 
+    public LocalSyncJSON() {
+        this.token = PreferenceManager.getInstance().getToken();
+        List<PlaylistJSON> playlistJSONs = new ArrayList<>();
+        for (Playlist playlist : RealmManager.getInstance().getAllPlaylist()) {
+            List<PlaylistJSON.SongJSON> songJSONList = new ArrayList<>();
+            //noinspection Convert2streamapi
+            for (Song song : RealmManager.getInstance().getSongsPlaylist(playlist.getPlaylistID())) {
+                songJSONList.add(new PlaylistJSON().new SongJSON(song.getName(), song.getArtist(), song.getStream(), song.getImageLink()));
+            }
+            PlaylistJSON playlistJSON = new PlaylistJSON(playlist.get_id(), playlist.getName(), songJSONList);
+            playlistJSONs.add(playlistJSON);
+        }
+        this.playlists = playlistJSONs;
+    }
+
     public class PlaylistJSON {
+
         @SerializedName("_id")
         private String id;
 
@@ -41,6 +58,7 @@ public class LocalSyncJSON {
         }
 
         public class SongJSON {
+
             @SerializedName("name")
             private String name;
 
@@ -61,20 +79,4 @@ public class LocalSyncJSON {
             }
         }
     }
-
-    public LocalSyncJSON() {
-        this.token = PreferenceManager.getInstance().getToken();
-        List<PlaylistJSON> playlistJSONs = new ArrayList<>();
-        for (Playlist playlist : RealmManager.getInstance().getAllPlaylist()){
-            List<PlaylistJSON.SongJSON> songJSONList = new ArrayList<>();
-            //noinspection Convert2streamapi
-            for (Song song : RealmManager.getInstance().getSongsPlaylist(playlist.getPlaylistID())){
-                songJSONList.add(new PlaylistJSON().new SongJSON(song.getName(),song.getArtist(),song.getStream(), song.getImageLink()));
-            }
-            PlaylistJSON playlistJSON = new PlaylistJSON(playlist.get_id(), playlist.getName(), songJSONList);
-            playlistJSONs.add(playlistJSON);
-        }
-        this.playlists = playlistJSONs;
-    }
-
 }

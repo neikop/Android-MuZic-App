@@ -95,7 +95,6 @@ public class RealmManager {
 
     public void addSong(Song song) {
         beginTransaction();
-        System.out.println("playlist id: " + song.getPlaylistID());
         getRealm().copyToRealm(song);
         commitTransaction();
     }
@@ -126,7 +125,7 @@ public class RealmManager {
                 .findAll();
     }
 
-    public void clearSongOfPlaylist() {
+    public void clearSongsPlaylist() {
         beginTransaction();
         getRealm().where(Song.class)
                 .beginsWith(Song.PLAYLIST_ID, Genre.TYPE_PLAYLIST)

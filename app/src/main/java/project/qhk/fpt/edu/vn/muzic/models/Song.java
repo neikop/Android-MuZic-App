@@ -2,6 +2,7 @@ package project.qhk.fpt.edu.vn.muzic.models;
 
 import io.realm.RealmObject;
 import project.qhk.fpt.edu.vn.muzic.models.api_models.MediaFeed;
+import project.qhk.fpt.edu.vn.muzic.models.api_models.PlaylistResult;
 import project.qhk.fpt.edu.vn.muzic.models.api_models.SearchResult;
 
 /**
@@ -33,6 +34,14 @@ public class Song extends RealmObject {
         this.artist = artist;
         this.imageLink = imageLink;
         this.stream = stream;
+    }
+
+    public Song(PlaylistResult.Playlist.Song song) {
+        this._id = song.getId();
+        this.name = song.getName();
+        this.artist = song.getArtist();
+        this.imageLink = song.getThumbnail();
+        this.stream = song.getStream();
     }
 
     public Song(SearchResult.SearchSong searchSong) {

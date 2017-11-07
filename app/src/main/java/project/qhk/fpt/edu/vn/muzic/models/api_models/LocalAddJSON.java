@@ -2,8 +2,6 @@ package project.qhk.fpt.edu.vn.muzic.models.api_models;
 
 import com.google.gson.annotations.SerializedName;
 
-import java.util.List;
-
 import project.qhk.fpt.edu.vn.muzic.managers.PreferenceManager;
 import project.qhk.fpt.edu.vn.muzic.models.Song;
 
@@ -12,6 +10,7 @@ import project.qhk.fpt.edu.vn.muzic.models.Song;
  */
 
 public class LocalAddJSON {
+
     @SerializedName("token")
     private String token;
 
@@ -32,6 +31,7 @@ public class LocalAddJSON {
     }
 
     public class SongJSON {
+
         @SerializedName("name")
         private String name;
 
@@ -51,5 +51,4 @@ public class LocalAddJSON {
             this.thumbnail = thumbnail;
         }
     }
-
 }

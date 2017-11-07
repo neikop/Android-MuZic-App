@@ -7,6 +7,7 @@ import com.google.gson.annotations.SerializedName;
  */
 
 public class AddToPlaylistResult {
+
     @SerializedName("status")
     private boolean success;
 
@@ -31,9 +32,12 @@ public class AddToPlaylistResult {
         return song.get_id();
     }
 
-    public String getPlaylistId() {return playlist.getId();}
+    public String getPlaylistId() {
+        return playlist.getId();
+    }
 
     public class Playlist {
+
         @SerializedName("_id")
         private String id;
 
@@ -50,6 +54,7 @@ public class AddToPlaylistResult {
     }
 
     public class Song {
+
         @SerializedName("_id")
         private String _id;
 
