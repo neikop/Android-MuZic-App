@@ -26,8 +26,10 @@ public class MediaFeed {
 
             @SerializedName("im:name")
             private Name name;
+
             @SerializedName("im:artist")
             private Artist artist;
+
             @SerializedName("im:image")
             private ArrayList<Image> imageList;
 
